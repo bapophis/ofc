@@ -210,9 +210,9 @@ static bool ofc_sema_scope__body_label_resolve(
 			return false;
 		}
 
-		if ((label->type == OFC_SEMA_LABEL_STMT)
-			&& label->stmt && !expr->is_format
-			&& (label->stmt->type == OFC_SEMA_STMT_IO_FORMAT))
+		if ((label->ast.type == OFC_SEMA_LABEL_STMT)
+			&& label->ast.stmt && !expr->is_format
+			&& (label->ast.stmt->type == OFC_SEMA_STMT_IO_FORMAT))
 		{
 			ofc_sparse_ref_warning(expr->src,
 				"Jumping to a FORMAT statement");
@@ -429,7 +429,7 @@ static bool ofc_sema_scope__body(
 			{
 				/* TODO - Get position of actual label. */
 				ofc_sparse_ref_warning(ofc_sema_label_src(label),
-					"Label %u is defined but not used", label->number);
+					"Label %u is defined but not used", label->ast.number);
 			}
 		}
 	}
@@ -1717,7 +1717,7 @@ bool ofc_sema_scope_print(
 		const ofc_sema_label_t* label
 			= ofc_sema_label_map_find_end_scope(
 				scope->label, scope);
-		const unsigned* ulabel = (label ? &label->number : NULL);
+		const unsigned* ulabel = (label ? &label->ast.number : NULL);
 
 		if (!ofc_colstr_newline(cs, indent, ulabel)
 			|| !ofc_colstr_keyword_atomic_writef(cs, "END %s ", kwstr))
