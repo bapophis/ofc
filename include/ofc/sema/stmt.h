@@ -409,14 +409,12 @@ typedef struct
 {
 	unsigned          count;
 	ofc_sema_stmt_t** stmt;
-} ofc_ast_stmt_list_t;
+} ofc_sema_stmt_list_ast_t;
 
 
 struct ofc_sema_stmt_list_s
 {
-	unsigned          count;
-	ofc_sema_stmt_t** stmt;
-	ofc_ast_stmt_list_t ast;
+	ofc_sema_stmt_list_ast_t ast;
 };
 
 

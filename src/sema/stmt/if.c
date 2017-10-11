@@ -329,9 +329,9 @@ bool ofc_sema_stmt_if_then_print(
 			|| !ofc_colstr_keyword_atomic_writez(cs, "ELSE"))
 			return false;
 
-		if ((stmt->if_then.block_else->count == 1)
-			&& stmt->if_then.block_else->stmt[0]
-			&& (stmt->if_then.block_else->stmt[0]->type
+		if ((stmt->if_then.block_else->ast.count == 1)
+			&& stmt->if_then.block_else->ast.stmt[0]
+			&& (stmt->if_then.block_else->ast.stmt[0]->type
 				== OFC_SEMA_STMT_IF_THEN)
 			&& !ulabel)
 		{
@@ -340,7 +340,7 @@ bool ofc_sema_stmt_if_then_print(
 
 			if (!ofc_sema_stmt_if_then_print(
 				cs, indent, label_map,
-				stmt->if_then.block_else->stmt[0]))
+				stmt->if_then.block_else->ast.stmt[0]))
 				return false;
 			hide_end = true;
 		}

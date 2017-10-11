@@ -511,8 +511,8 @@ ofc_sema_stmt_list_t* ofc_sema_stmt_list_create(void)
 	if (!list) return NULL;
 	
 
-	list->count = 0;
-	list->stmt  = NULL;
+	list->ast.count = 0;
+	list->ast.stmt  = NULL;
 	return list;
 }
 
@@ -782,10 +782,10 @@ ofc_sema_stmt_list_t* ofc_sema_stmt_list(
 			continue;
 
 		bool success;
-		if (j < list->count)
+		if (j < list->ast.count)
 		{
 			success = ofc_sema_label_map_add_stmt(
-				scope->label, stmt->label, list->stmt[j]);
+				scope->label, stmt->label, list->ast.stmt[j]);
 
 		}
 		else if (block)
@@ -831,9 +831,9 @@ void ofc_sema_stmt_list_delete(
 		return;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
-		ofc_sema_stmt_delete(list->stmt[i]);
-	free(list->stmt);
+	for (i = 0; i < list->ast.count; i++)
+		ofc_sema_stmt_delete(list->ast.stmt[i]);
+	free(list->ast.stmt);
 
 	free(list);
 }
@@ -846,12 +846,12 @@ bool ofc_sema_stmt_list_add(
 		return false;
 
 	ofc_sema_stmt_t** nstmt
-		= (ofc_sema_stmt_t**)realloc(list->stmt,
-			(sizeof(ofc_sema_stmt_t*) * (list->count + 1)));
+		= (ofc_sema_stmt_t**)realloc(list->ast.stmt,
+			(sizeof(ofc_sema_stmt_t*) * (list->ast.count + 1)));
 	if (!nstmt) return NULL;
-	list->stmt = nstmt;
+	list->ast.stmt = nstmt;
 
-	list->stmt[list->count++] = stmt;
+	list->ast.stmt[list->ast.count++] = stmt;
 
 	return true;
 }
@@ -864,11 +864,11 @@ bool ofc_sema_stmt_list_remove(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
-		if (list->stmt[i] == stmt)
+		if (list->ast.stmt[i] == stmt)
 		{
-			list->stmt[i] = NULL;
+			list->ast.stmt[i] = NULL;
 			return true;
 		}
 	}
@@ -879,7 +879,7 @@ bool ofc_sema_stmt_list_remove(
 unsigned ofc_sema_stmt_list_count(
 	const ofc_sema_stmt_list_t* list)
 {
-	return (list ? list->count : 0);
+	return (list ? list->ast.count : 0);
 }
 
 bool ofc_sema_stmt_list_foreach(
@@ -890,11 +890,11 @@ bool ofc_sema_stmt_list_foreach(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
-		if (!list->stmt[i]) continue;
+		if (!list->ast.stmt[i]) continue;
 
-		ofc_sema_stmt_t* stmt = list->stmt[i];
+		ofc_sema_stmt_t* stmt = list->ast.stmt[i];
 
 		if (!func(stmt, param))
 			return false;
@@ -1274,12 +1274,12 @@ bool ofc_sema_stmt_list_foreach_expr(
 	bool (*func)(ofc_sema_expr_t* expr, void* param))
 {
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
-		if (!list->stmt[i]) continue;
+		if (!list->ast.stmt[i]) continue;
 
 		if (!ofc_sema_stmt_foreach_expr(
-			list->stmt[i], param, func))
+			list->ast.stmt[i], param, func))
 			return false;
 	}
 
@@ -1448,13 +1448,13 @@ bool ofc_sema_stmt_list_print(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < stmt_list->count; i++)
+	for (i = 0; i < stmt_list->ast.count; i++)
 	{
-		if (stmt_list->stmt[i])
+		if (stmt_list->ast.stmt[i])
 		{
 			const ofc_sema_label_t* label
 				= ofc_sema_label_map_find_stmt(
-					label_map, stmt_list->stmt[i]);
+					label_map, stmt_list->ast.stmt[i]);
 			if (label)
 			{
 				unsigned label_num = label->ast.number;
@@ -1468,10 +1468,10 @@ bool ofc_sema_stmt_list_print(
 			}
 
 			if (!ofc_sema_stmt_print(cs, indent,
-				label_map, stmt_list->stmt[i]))
+				label_map, stmt_list->ast.stmt[i]))
 			{
 				ofc_file_error(NULL, NULL, "Failed to print statement: %s",
-					ofc_sema_stmt__str_rep(stmt_list->stmt[i]));
+					ofc_sema_stmt__str_rep(stmt_list->ast.stmt[i]));
 				return false;
 			}
 		}

@@ -28,11 +28,11 @@ static bool ofc_sema_pass_unlabelled_format__scope(
 		ofc_sema_stmt_list_t* list = scope->stmt;
 
 		unsigned i;
-		for (i = 0; i < scope->stmt->count; i++)
+		for (i = 0; i < scope->stmt->ast.count; i++)
 		{
-			if (list->stmt[i])
+			if (list->ast.stmt[i])
 			{
-				ofc_sema_stmt_t* stmt = list->stmt[i];
+				ofc_sema_stmt_t* stmt = list->ast.stmt[i];
 
 				if ((stmt->type == OFC_SEMA_STMT_IO_FORMAT)
 					&& !ofc_sema_label_map_find_stmt(scope->label, stmt))
