@@ -26,11 +26,11 @@ typedef struct
 {
 	unsigned count;
 	ofc_sema_arg_t* arg;
-} ofc_ast_arg_list_t;
+} ofc_sema_arg_list_ast_t;
 
 typedef struct
 {
-	ofc_ast_arg_list_t ast;
+	ofc_sema_arg_list_ast_t ast;
 } ofc_sema_arg_list_t;
 
 
