@@ -17,7 +17,7 @@
 #define __ast_file_h__
 
 #include <stdbool.h>
-#include "lang_opts.h"
+//#include "lang_opts.h"
 
 typedef struct
 {
@@ -25,25 +25,26 @@ typedef struct
 	unsigned count;
 } ast_file_include_list_t;
 
-typedef struct ofc_file_s ofc_file_t;
+typedef struct ast_file_s ast_file_t;
 
-struct ofc_file_s
+struct ast_file_s
 {
-	const ofc_file_t*      parent;
+	const ast_file_t*      parent;
 
-	ofc_sparse_ref_t include_stmt;
+//	ofc_sparse_ref_t include_stmt;
 
 	char*                    path;
-	ofc_file_include_list_t* include;
+	ast_file_include_list_t* include;
 	char*                    strz;
-	ofc_lang_opts_t          opts;
-	unsigned                 size;
-	unsigned                 ref;
+//	ofc_lang_opts_t          opts;
+//	unsigned                 size;
+//	unsigned                 ref;
 };
+/*
 typedef struct
 {
 	unsigned     count;
 	ofc_file_t** file;
 } ofc_file_list_t;
-
+*/
 #endif

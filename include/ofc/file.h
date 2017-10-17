@@ -18,13 +18,14 @@
 
 #include <stdbool.h>
 #include "lang_opts.h"
-
+#include "../ast/file.h"
+/*
 typedef struct
 {
 	char**   path;
 	unsigned count;
 } ofc_file_include_list_t;
-
+*/
 typedef struct ofc_file_s ofc_file_t;
 
 typedef struct
@@ -64,10 +65,10 @@ void ofc_file_list_delete(ofc_file_list_t* list);
 
 bool ofc_file_include_list_add_create(
 	ofc_file_t* file, char* path);
-ofc_file_include_list_t* ofc_file_include_list_dup(
-	const ofc_file_include_list_t* source);
+ast_file_include_list_t* ofc_file_include_list_dup(
+	const ast_file_include_list_t* source);
 void ofc_file_include_list_delete(
-	ofc_file_include_list_t* list);
+	ast_file_include_list_t* list);
 
 #include <stdarg.h>
 
