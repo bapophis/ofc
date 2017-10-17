@@ -85,6 +85,7 @@ ofc_file_t* ofc_file_create(const char* path, ofc_lang_opts_t opts)
 	file->opts = opts;
 
 	file->parent = NULL;
+	file->ast.parent = NULL;//DEBUG
 	file->ast.include = NULL;
 
 	file->ref = 0;
@@ -184,6 +185,7 @@ ofc_file_t* ofc_file_create_include(
 			if (file)
 			{
 				file->parent = parent_file;
+				file->ast.parent = &(parent_file->ast);//DEBUG
 				file->include_stmt = include_stmt;
 				file->ast.include = parent_file->ast.include;
 
@@ -201,6 +203,7 @@ ofc_file_t* ofc_file_create_include(
 	if (file && parent_file)
 	{
 		file->parent = parent_file;
+		file->ast.parent = &(parent_file->ast);//DEBUG
 		file->include_stmt = include_stmt;
 		file->ast.include = parent_file->ast.include;
 	}
