@@ -32,11 +32,12 @@ struct ofc_file_s
 
 	ofc_sparse_ref_t include_stmt;
 
-	char*                    path;
+	//char*                    path; //ast
 	ofc_file_include_list_t* include;
-	char*                    strz;
+	//char*                    strz; //ast
 	ofc_lang_opts_t          opts;
-	unsigned                 size;
+	//unsigned                 size; //ast
+	ast_file_t ast;
 	unsigned                 ref;
 };
 
@@ -80,8 +81,8 @@ ofc_file_t* ofc_file_create(const char* path, ofc_lang_opts_t opts)
 	ofc_file_t* file = (ofc_file_t*)malloc(sizeof(ofc_file_t));
 	if (!file) return NULL;
 
-	file->path = strdup(path);
-	file->strz = ofc_file__read(path, &file->size);
+	file->ast.path = strdup(path);
+	file->ast.strz = ofc_file__read(path, &file->ast.size);
 	file->opts = opts;
 
 	file->parent = NULL;
@@ -89,7 +90,7 @@ ofc_file_t* ofc_file_create(const char* path, ofc_lang_opts_t opts)
 
 	file->ref = 0;
 
-	if (!file->path || !file->strz)
+	if (!file->ast.path || !file->ast.strz)
 	{
 		ofc_file_delete(file);
 		return NULL;
@@ -162,7 +163,7 @@ static char* ofc_file__base_parent_path(
 	if (file->parent)
 		return ofc_file__base_parent_path(file->parent);
 
-	return file->path;
+	return file->ast.path;
 }
 
 ofc_file_t* ofc_file_create_include(
@@ -231,8 +232,8 @@ void ofc_file_delete(ofc_file_t* file)
 		return;
 	}
 
-	free(file->strz);
-	free(file->path);
+	free(file->ast.strz);
+	free(file->ast.path);
 
 	/* The root file is responsible for cleaning up */
 	if (!file->parent)
@@ -245,12 +246,12 @@ void ofc_file_delete(ofc_file_t* file)
 
 const char* ofc_file_get_path(const ofc_file_t* file)
 {
-	return (file ? file->path : NULL);
+	return (file ? file->ast.path : NULL);
 }
 
 const char* ofc_file_get_strz(const ofc_file_t* file)
 {
-	return (file ? file->strz : NULL);
+	return (file ? file->ast.strz : NULL);
 }
 
 const ofc_lang_opts_t* ofc_file_get_lang_opts(const ofc_file_t* file)
@@ -270,22 +271,22 @@ bool ofc_file_get_position(
 	const ofc_file_t* file, const char* ptr,
 	unsigned* row, unsigned* col)
 {
-	if (!file || !file->strz || !ptr)
+	if (!file || !file->ast.strz || !ptr)
 		return false;
 
-	uintptr_t pos = ((uintptr_t)ptr - (uintptr_t)file->strz);
-	if (pos >= file->size)
+	uintptr_t pos = ((uintptr_t)ptr - (uintptr_t)file->ast.strz);
+	if (pos >= file->ast.size)
 		return false;
 
 	/* TODO - Use binary tree of line positions to find faster. */
 	unsigned i, r, c;
 	for (i = 0, r = 0, c = 0; i < pos; i++)
 	{
-		switch (file->strz[i])
+		switch (file->ast.strz[i])
 		{
 			case '\r':
 				/* Support Windows line endings when running on cygwin. */
-				if (file->strz[i + 1] == '\n') i++;
+				if (file->ast.strz[i + 1] == '\n') i++;
 			case '\n':
 				r += 1;
 				c = 0;
@@ -423,7 +424,7 @@ static void ofc_file__print_include_loc(
 			include_file->include_stmt.string.base),
 		&incl_row, &incl_col);
 
-	fprintf(stderr, "%s:", parent_file->path);
+	fprintf(stderr, "%s:", parent_file->ast.path);
 	if (incl_pos)
 		fprintf(stderr, "%u,%u:", (incl_row + 1), incl_col);
 	fprintf(stderr, "\n  ");
@@ -447,8 +448,8 @@ static void ofc_file__debug_va(
 
 		ofc_file__print_include_loc(include_file, parent_file);
 
-		if (file->path)
-			fprintf(stderr, "%s:", file->path);
+		if (file->ast.path)
+			fprintf(stderr, "%s:", file->ast.path);
 		if (positional)
 			fprintf(stderr, "%u,%u:", (row + 1), col);
 
@@ -489,9 +490,9 @@ static void ofc_file__debug_va(
 		if (!sol)
 			sol = ptr;
 
-		const char* s = file->strz;
+		const char* s = file->ast.strz;
 		const char* p;
-		for (p = file->strz; p < sol; p++)
+		for (p = file->ast.strz; p < sol; p++)
 		{
 			if (ofc_is_vspace(*p))
 				s = &p[1];
@@ -502,10 +503,10 @@ static void ofc_file__debug_va(
 
 		/* Print line(s) above if line is empty. */
 		while (line_empty(s, len)
-			&& (s != file->strz))
+			&& (s != file->ast.strz))
 		{
-			const char* ns = file->strz;
-			for (p = file->strz; p < s; p++)
+			const char* ns = file->ast.strz;
+			for (p = file->ast.strz; p < s; p++)
 			{
 				if (ofc_is_vspace(*p))
 					ns = &p[1];

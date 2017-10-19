@@ -19,12 +19,14 @@
 #include <stdbool.h>
 #include "lang_opts.h"
 
+#include "ast/file.h"
+/*
 typedef struct
 {
 	char**   path;
 	unsigned count;
 } ofc_file_include_list_t;
-
+*/
 typedef struct ofc_file_s ofc_file_t;
 
 typedef struct
