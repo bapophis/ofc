@@ -32,7 +32,7 @@ bool ofc_sema_io_compare_types(
 	{
 		if (!expr)
 		{
-			ofc_sparse_ref_warning(lhs->src,
+			ofc_sparse_ref_warning(lhs->ast.src,
 				"Trying to format a %s output  with a %s FORMAT descriptor",
 				ofc_sema_format_str_rep(desc->type),
 				ofc_sema_type_str_rep(type));
@@ -63,7 +63,7 @@ bool ofc_sema_io_compare_types(
 		if (!ofc_sema_type_base_size(type, &csize)
 			|| (csize != 1))
 		{
-			ofc_sparse_ref_t src = (lhs ? lhs->src : (*expr)->src);
+			ofc_sparse_ref_t src = (lhs ? lhs->ast.src : (*expr)->src);
 			ofc_sparse_ref_error(src,
 				"CHARACTER type KIND not supported in %s",
 				(stmt->type == OFC_SEMA_STMT_IO_WRITE ? "WRITE" : "PRINT"));

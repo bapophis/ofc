@@ -16,7 +16,7 @@
 #ifndef __ofc_sema_array_h__
 #define __ofc_sema_array_h__
 
-
+/*
 typedef struct
 {
 	ofc_sema_expr_t* first;
@@ -29,6 +29,7 @@ typedef struct
 	unsigned              dimensions;
 	ofc_sema_array_dims_t segment[0];
 } ofc_sema_array_t;
+*/
 
 ofc_sema_array_t* ofc_sema_array(
 	ofc_sema_scope_t*              scope,
@@ -71,12 +72,13 @@ bool ofc_sema_array_foreach_expr(
 	ofc_sema_array_t* array, void* param,
 	bool (*func)(ofc_sema_expr_t* expr, void* param));
 
-
+/*
 typedef struct
 {
 	unsigned         dimensions;
 	ofc_sema_expr_t* index[0];
 } ofc_sema_array_index_t;
+*/
 
 bool ofc_sema_array_index_print(
 	ofc_colstr_t* cs,
@@ -107,7 +109,7 @@ bool ofc_sema_array_index_compare(
 	const ofc_sema_array_index_t* a,
 	const ofc_sema_array_index_t* b);
 
-
+/*
 typedef struct
 {
 	bool is_index;
@@ -121,6 +123,7 @@ typedef struct
 	unsigned                 dimensions;
 	ofc_sema_array_segment_t segment[0];
 } ofc_sema_array_slice_t;
+*/
 
 ofc_sema_array_slice_t* ofc_sema_array_slice(
 	ofc_sema_scope_t*              scope,

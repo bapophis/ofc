@@ -16,14 +16,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "ast/label.h"
 #include "ofc/label_table.h"
-
 typedef struct label_s label_t;
 
 struct label_s
 {
 	unsigned offset;
-	unsigned number;
+	ast_label_t ast;
 
 	label_t* next;
 };
@@ -91,7 +91,7 @@ bool ofc_label_table_add(
 	if (!label) return false;
 
 	label->offset = offset;
-	label->number = number;
+	label->ast.number = number;
 	label->next   = table->base[hash];
 
 	table->base[hash] = label;
@@ -112,7 +112,7 @@ bool ofc_label_table_find(
 	{
 		if (label->offset == offset)
 		{
-			if (number) *number = label->number;
+			if (number) *number = label->ast.number;
 			return true;
 		}
 	}

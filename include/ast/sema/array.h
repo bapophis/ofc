@@ -13,38 +13,42 @@
  * limitations under the License.
  */
 
-#ifndef __ast_file_h__
-#define __ast_file_h__
+#ifndef __ast_sema_array_h__
+#define __ast_sema_array_h__
 
-#include <stdbool.h>
-//#include "lang_opts.h"
 
 typedef struct
 {
-	char**   path;
-	unsigned count;
-} ofc_file_include_list_t;
+	ofc_sema_expr_t* first;
+	ofc_sema_expr_t* last;
+} ofc_sema_array_dims_t;
 
-typedef struct ast_file_s ast_file_t;
-
-struct ast_file_s
-{
-	const ast_file_t*      parent;
-
-//	ofc_sparse_ref_t include_stmt;
-
-	char*                    path;
-	ofc_file_include_list_t* include;
-	char*                    strz;
-//	ofc_lang_opts_t          opts;
-//	unsigned                 size;
-//	unsigned                 ref;
-};
-/*
 typedef struct
 {
-	unsigned     count;
-	ofc_file_t** file;
-} ofc_file_list_t;
-*/
+	bool                  scan;
+	unsigned              dimensions;
+	ofc_sema_array_dims_t segment[0];
+} ofc_sema_array_t;
+
+
+typedef struct
+{
+	unsigned         dimensions;
+	ofc_sema_expr_t* index[0];
+} ofc_sema_array_index_t;
+
+typedef struct
+{
+	bool is_index;
+	ofc_sema_expr_t* first;
+	ofc_sema_expr_t* last;
+	ofc_sema_expr_t* stride;
+} ofc_sema_array_segment_t;
+
+typedef struct
+{
+	unsigned                 dimensions;
+	ofc_sema_array_segment_t segment[0];
+} ofc_sema_array_slice_t;
+
 #endif

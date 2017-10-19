@@ -15,7 +15,7 @@
 
 #ifndef __ofc_sema_lhs_h__
 #define __ofc_sema_lhs_h__
-
+/*
 typedef enum
 {
 	OFC_SEMA_LHS_DECL,
@@ -25,13 +25,13 @@ typedef enum
 	OFC_SEMA_LHS_STRUCTURE_MEMBER,
 	OFC_SEMA_LHS_IMPLICIT_DO,
 } ofc_sema_lhs_e;
-
+*/
 struct ofc_sema_lhs_s
 {
-	ofc_sema_lhs_e type;
+//	ofc_sema_lhs_e type;
 
-	ofc_sparse_ref_t src;
-
+//	ofc_sparse_ref_t src;
+/*
 	union
 	{
 		ofc_sema_decl_t* decl;
@@ -72,7 +72,8 @@ struct ofc_sema_lhs_s
 			};
 		};
 	};
-
+*/
+	ast_sema_lhs_t ast;
 	unsigned refcnt;
 };
 

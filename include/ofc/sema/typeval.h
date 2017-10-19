@@ -15,7 +15,7 @@
 
 #ifndef __ofc_sema_typeval_h__
 #define __ofc_sema_typeval_h__
-
+/*
 typedef struct
 {
     const ofc_sema_type_t* type;
@@ -37,7 +37,7 @@ typedef struct
 		char* character;
 	};
 } ofc_sema_typeval_t;
-
+*/
 
 ofc_sema_typeval_t* ofc_sema_typeval_create_logical(
 	bool value, ofc_sema_kind_e kind,

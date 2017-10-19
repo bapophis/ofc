@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __ofc_sema_accessibility_h__
-#define __ofc_sema_accessibility_h__
+#ifndef __ast_sema_accessibility_h__
+#define __ast_sema_accessibility_h__
 
 typedef enum
 {

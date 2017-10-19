@@ -15,7 +15,7 @@
 
 #ifndef __ofc_sema_type_h__
 #define __ofc_sema_type_h__
-
+/*
 typedef enum
 {
 	OFC_SEMA_TYPE_LOGICAL = 0,
@@ -53,6 +53,7 @@ struct ofc_sema_type_s
 		};
 	};
 };
+*/
 
 const char* ofc_sema_type_str_rep(
 	const ofc_sema_type_t* type);

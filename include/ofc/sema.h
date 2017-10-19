@@ -38,11 +38,15 @@ typedef struct ofc_sema_lhs_list_s          ofc_sema_lhs_list_t;
 typedef struct ofc_sema_module_list_s       ofc_sema_module_list_t;
 typedef struct ofc_sema_format_label_list_s ofc_sema_format_label_list_t;
 
-#include <ofc/sema/kind.h>
+#include <ast/sema.h>
+
+//#include <ast/sema/kind.h>
 #include <ofc/sema/array.h>
 #include <ofc/sema/structure.h>
+//#include <ast/sema/typeval.h>
 #include <ofc/sema/typeval.h>
 #include <ofc/sema/parameter.h>
+#include <ast/sema/equiv.h>
 #include <ofc/sema/equiv.h>
 #include <ofc/sema/common.h>
 #include <ofc/sema/format.h>
@@ -51,13 +55,17 @@ typedef struct ofc_sema_format_label_list_s ofc_sema_format_label_list_t;
 #include <ofc/sema/dummy_arg.h>
 #include <ofc/sema/intrinsic.h>
 #include <ofc/sema/io.h>
+//#include <ast/sema/arg.h>
 #include <ofc/sema/arg.h>
 #include <ofc/sema/range.h>
-#include <ofc/sema/accessibility.h>
+#include <ast/sema/accessibility.h>
 
 #include <ofc/sema/stmt.h>
+#include <ast/sema/type.h>
 #include <ofc/sema/type.h>
+//#include <ast/sema/expr.h>
 #include <ofc/sema/expr.h>
+#include <ast/sema/lhs.h>
 #include <ofc/sema/lhs.h>
 #include <ofc/sema/decl.h>
 #include <ofc/sema/implicit.h>

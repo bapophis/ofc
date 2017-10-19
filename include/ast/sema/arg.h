@@ -13,38 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef __ast_file_h__
-#define __ast_file_h__
-
-#include <stdbool.h>
-#include "lang_opts.h"
+#ifndef __ast_sema_arg_h__
+#define __ast_sema_arg_h__
 
 typedef struct
 {
-	char**   path;
-	unsigned count;
-} ast_file_include_list_t;
+	bool             alt_return;
+	ofc_sparse_ref_t name;
+} ofc_sema_arg_t;
 
-typedef struct ast_file_s ast_file_t;
-
-struct ast_file_s
-{
-	const ast_file_t*      parent;
-
-//	ofc_sparse_ref_t include_stmt;
-
-	char*                    path;
-	ast_file_include_list_t* include;
-	char*                    strz;
-//	ofc_lang_opts_t          opts;
-//	unsigned                 size;
-//	unsigned                 ref;
-};
-/*
 typedef struct
 {
-	unsigned     count;
-	ofc_file_t** file;
-} ofc_file_list_t;
-*/
+	unsigned        count;
+	ofc_sema_arg_t* arg;
+} ofc_sema_arg_list_t;
+
 #endif

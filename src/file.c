@@ -174,7 +174,7 @@ ofc_file_t* ofc_file_create_include(
 
 	if (parent_file && parent_file->ast.include)
 	{
-		ast_file_include_list_t* include = parent_file->ast.include;
+		ofc_file_include_list_t* include = parent_file->ast.include;
 		unsigned i;
 		for (i = 0; i < include->count; i++)
 		{
@@ -355,8 +355,8 @@ bool ofc_file_include_list_add_create(
 
 	if (!file->ast.include)
 	{
-		file->ast.include = (ast_file_include_list_t*)malloc(
-			sizeof(ast_file_include_list_t));
+		file->ast.include = (ofc_file_include_list_t*)malloc(
+			sizeof(ofc_file_include_list_t));
 
 		if (!file->ast.include)
 			return false;
@@ -377,7 +377,7 @@ bool ofc_file_include_list_add_create(
 }
 
 void ofc_file_include_list_delete(
-	ast_file_include_list_t* list)
+	ofc_file_include_list_t* list)
 {
 	if (!list)
 		return;

@@ -15,7 +15,7 @@
 
 #ifndef __ofc_sema_expr_h__
 #define __ofc_sema_expr_h__
-
+/*
 typedef enum
 {
 	OFC_SEMA_EXPR_CONSTANT = 0,
@@ -49,15 +49,15 @@ typedef enum
 
 	OFC_SEMA_EXPR_COUNT
 } ofc_sema_expr_e;
-
+*/
 struct ofc_sema_expr_s
 {
 	ofc_sema_expr_e type;
 
-	ofc_sparse_ref_t src;
+	ofc_sparse_ref_t src;//don't move
 
 	ofc_sema_typeval_t* constant;
-	ofc_sema_label_t*   label;
+	ofc_sema_label_t*   label;//has an ast component
 
 	bool brackets;
 
