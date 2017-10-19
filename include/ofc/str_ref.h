@@ -21,15 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ofc/colstr.h>
-
-typedef struct
-{
-	const char* base;
-	unsigned    size;
-} ofc_str_ref_t;
-
-#define OFC_STR_REF_EMPTY (ofc_str_ref_t){ .base = NULL, .size = 0 }
-
+#include <ast/str_ref.h>
 static inline ofc_str_ref_t ofc_str_ref(const char* base, unsigned size)
 	{ return (ofc_str_ref_t){ base, size }; }
 static inline ofc_str_ref_t ofc_str_ref_from_strz(const char* strz)
