@@ -17,7 +17,7 @@
 #define __ofc_sparse_h__
 
 #include <stdbool.h>
-
+#include "ast/sparse.h"
 
 typedef struct ofc_sparse_s ofc_sparse_t;
 

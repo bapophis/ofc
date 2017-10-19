@@ -20,26 +20,26 @@
 #include "ofc/fctype.h"
 #include "ofc/file.h"
 
-
+/*
 typedef struct
 {
 	const char* ptr;
 	unsigned    len;
 	unsigned    off;
 } ofc_sparse_entry_t;
-
+*/
 struct ofc_sparse_s
 {
 	ofc_file_t*   file;
 	ofc_sparse_t* parent;
 
-	unsigned len, count, max_count;
-	ofc_sparse_entry_t* entry;
+//	unsigned len, count, max_count;
+//	ofc_sparse_entry_t* entry;
 
-	char* strz;
+//	char* strz;
 
-	ofc_label_table_t* labels;
-
+//	ofc_label_table_t* labels;
+	ast_sparse_t ast;
 	unsigned ref;
 };
 
@@ -53,9 +53,9 @@ static ofc_sparse_t* ofc_sparse__create(
 			sizeof(ofc_sparse_t));
 	if (!sparse) return NULL;
 
-	sparse->labels
+	sparse->ast.labels
 		= ofc_label_table_create();
-	if (!sparse->labels)
+	if (!sparse->ast.labels)
 	{
 		free(sparse);
 		return NULL;
@@ -64,12 +64,12 @@ static ofc_sparse_t* ofc_sparse__create(
 	sparse->file   = file;
 	sparse->parent = parent;
 
-	sparse->len       = 0;
-	sparse->count     = 0;
-	sparse->max_count = 0;
-	sparse->entry     = NULL;
+	sparse->ast.len       = 0;
+	sparse->ast.count     = 0;
+	sparse->ast.max_count = 0;
+	sparse->ast.entry     = NULL;
 
-	sparse->strz = NULL;
+	sparse->ast.strz = NULL;
 
 	sparse->ref = 0;
 
@@ -131,10 +131,10 @@ void ofc_sparse_delete(ofc_sparse_t* sparse)
 	ofc_sparse_delete(sparse->parent);
 	ofc_file_delete(sparse->file);
 
-	ofc_label_table_delete(sparse->labels);
+	ofc_label_table_delete(sparse->ast.labels);
 
-	free(sparse->strz);
-	free(sparse->entry);
+	free(sparse->ast.strz);
+	free(sparse->ast.entry);
 	free(sparse);
 }
 
@@ -142,7 +142,7 @@ void ofc_sparse_delete(ofc_sparse_t* sparse)
 
 unsigned ofc_sparse_len(const ofc_sparse_t* sparse)
 {
-	return (sparse ? sparse->len : 0);
+	return (sparse ? sparse->ast.len : 0);
 }
 
 
@@ -159,47 +159,47 @@ bool ofc_sparse_append_strn(
 		return false;
 
 	/* If strz has been called disallow further modifications. */
-	if (sparse->strz)
+	if (sparse->ast.strz)
 		return false;
 
-	if (sparse->count >= sparse->max_count)
+	if (sparse->ast.count >= sparse->ast.max_count)
 	{
-		unsigned ncount = (sparse->max_count << 1);
+		unsigned ncount = (sparse->ast.max_count << 1);
 		if (ncount == 0) ncount = 16;
 
-		ofc_sparse_entry_t* nentry = (ofc_sparse_entry_t*)realloc(sparse->entry,
+		ofc_sparse_entry_t* nentry = (ofc_sparse_entry_t*)realloc(sparse->ast.entry,
 				(sizeof(ofc_sparse_entry_t) * ncount));
 		if (!nentry) return false;
-		sparse->entry = nentry;
-		sparse->max_count = ncount;
+		sparse->ast.entry = nentry;
+		sparse->ast.max_count = ncount;
 	}
 
-	sparse->entry[sparse->count].ptr = src;
-	sparse->entry[sparse->count].len = len;
-	sparse->entry[sparse->count].off = sparse->len;
-	sparse->count++;
-	sparse->len += len;
+	sparse->ast.entry[sparse->ast.count].ptr = src;
+	sparse->ast.entry[sparse->ast.count].len = len;
+	sparse->ast.entry[sparse->ast.count].off = sparse->ast.len;
+	sparse->ast.count++;
+	sparse->ast.len += len;
 
 	return true;
 }
 
 void ofc_sparse_lock(ofc_sparse_t* sparse)
 {
-	if (!sparse || sparse->strz)
+	if (!sparse || sparse->ast.strz)
 		return;
 
-	sparse->strz = (char*)malloc(sparse->len + 1);
-	if (!sparse->strz) return;
+	sparse->ast.strz = (char*)malloc(sparse->ast.len + 1);
+	if (!sparse->ast.strz) return;
 
 	unsigned i, j;
-	for (i = 0, j = 0; i < sparse->count; j += sparse->entry[i++].len)
-		memcpy(&sparse->strz[j], sparse->entry[i].ptr, sparse->entry[i].len);
-	sparse->strz[j] = '\0';
+	for (i = 0, j = 0; i < sparse->ast.count; j += sparse->ast.entry[i++].len)
+		memcpy(&sparse->ast.strz[j], sparse->ast.entry[i].ptr, sparse->ast.entry[i].len);
+	sparse->ast.strz[j] = '\0';
 }
 
 const char* ofc_sparse_strz(const ofc_sparse_t* sparse)
 {
-	return (sparse ? sparse->strz : NULL);
+	return (sparse ? sparse->ast.strz : NULL);
 }
 
 
@@ -208,28 +208,28 @@ static bool ofc_sparse__ptr(
 	ofc_sparse_entry_t* entry, unsigned* offset,
 	ofc_sparse_entry_t** prev)
 {
-	if (!sparse || !sparse->strz || !ptr)
+	if (!sparse || !sparse->ast.strz || !ptr)
 		return false;
 
-	uintptr_t off = ((uintptr_t)ptr - (uintptr_t)sparse->strz);
-	if (off > sparse->len)
+	uintptr_t off = ((uintptr_t)ptr - (uintptr_t)sparse->ast.strz);
+	if (off > sparse->ast.len)
 		return false;
 
 	unsigned mid;
-	if (off == sparse->len)
+	if (off == sparse->ast.len)
 	{
 		/* Pointing at end of sparse. */
-		mid = (sparse->count - 1);
+		mid = (sparse->ast.count - 1);
 	}
 	else
 	{
-		unsigned hi  = (sparse->count - 1);
+		unsigned hi  = (sparse->ast.count - 1);
 		unsigned lo  = 0;
 
 		for (mid = lo + ((hi - lo) / 2); hi != lo; mid = lo + ((hi - lo) / 2))
 		{
-			unsigned start = sparse->entry[mid].off;
-			unsigned end   = start + sparse->entry[mid].len;
+			unsigned start = sparse->ast.entry[mid].off;
+			unsigned end   = start + sparse->ast.entry[mid].len;
 
 			if (off < start)
 				hi = (mid - 1);
@@ -240,10 +240,10 @@ static bool ofc_sparse__ptr(
 		}
 	}
 
-	off -= sparse->entry[mid].off;
+	off -= sparse->ast.entry[mid].off;
 
-	if (prev  ) *prev   = ((off == 0) && (mid > 0) ? &sparse->entry[mid - 1] : NULL);
-	if (entry ) *entry  = sparse->entry[mid];
+	if (prev  ) *prev   = ((off == 0) && (mid > 0) ? &sparse->ast.entry[mid - 1] : NULL);
+	if (entry ) *entry  = sparse->ast.entry[mid];
 	if (offset) *offset = off;
 	return true;
 }
@@ -265,22 +265,22 @@ static const ofc_file_t* ofc_sparse__file(
 bool ofc_sparse_label_add(
 	ofc_sparse_t* sparse, unsigned number)
 {
-	if (!sparse || sparse->strz)
+	if (!sparse || sparse->ast.strz)
 		return false;
 	return ofc_label_table_add(
-		sparse->labels, sparse->len, number);
+		sparse->ast.labels, sparse->ast.len, number);
 }
 
 bool ofc_sparse_label_find(
 	const ofc_sparse_t* sparse, const char* ptr, unsigned* number)
 {
-	if (!sparse || !sparse->strz)
+	if (!sparse || !sparse->ast.strz)
 		return false;
 
-	unsigned offset = ((uintptr_t)ptr - (uintptr_t)sparse->strz);
+	unsigned offset = ((uintptr_t)ptr - (uintptr_t)sparse->ast.strz);
 
 	if (ofc_label_table_find(
-		sparse->labels, offset, number))
+		sparse->ast.labels, offset, number))
 		return true;
 
 	if (!sparse->parent)
@@ -405,9 +405,9 @@ static const char* ofc_sparse__file_pointer(
 
 	if (sol)
 	{
-		const char* s = sparse->strz;
+		const char* s = sparse->ast.strz;
 		const char* p;
-		for (p = sparse->strz; p < ptr; p++)
+		for (p = sparse->ast.strz; p < ptr; p++)
 		{
 			if (ofc_is_vspace(*p))
 				s = &p[1];
