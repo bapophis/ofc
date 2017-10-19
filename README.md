@@ -5,6 +5,8 @@ exposed in ast headers:
 * sparse\_entry, ast\_sparse
 * string
 * str\_ref
+* accessibility\_e
+* kind\_e
 
 # OFC - Open Fortran Compiler
 
