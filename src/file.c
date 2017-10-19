@@ -33,7 +33,7 @@ struct ofc_file_s
 	ofc_sparse_ref_t include_stmt;
 
 	//char*                    path; //ast
-	ofc_file_include_list_t* include;
+	//ofc_file_include_list_t* include;
 	//char*                    strz; //ast
 	ofc_lang_opts_t          opts;
 	//unsigned                 size; //ast
@@ -86,7 +86,7 @@ ofc_file_t* ofc_file_create(const char* path, ofc_lang_opts_t opts)
 	file->opts = opts;
 
 	file->parent = NULL;
-	file->include = NULL;
+	file->ast.include = NULL;
 
 	file->ref = 0;
 
@@ -172,9 +172,9 @@ ofc_file_t* ofc_file_create_include(
 {
 	ofc_file_t* file = NULL;
 
-	if (parent_file && parent_file->include)
+	if (parent_file && parent_file->ast.include)
 	{
-		ofc_file_include_list_t* include = parent_file->include;
+		ofc_file_include_list_t* include = parent_file->ast.include;
 		unsigned i;
 		for (i = 0; i < include->count; i++)
 		{
@@ -186,7 +186,7 @@ ofc_file_t* ofc_file_create_include(
 			{
 				file->parent = parent_file;
 				file->include_stmt = include_stmt;
-				file->include = parent_file->include;
+				file->ast.include = parent_file->ast.include;
 
 				free(rpath);
 				return file;
@@ -203,7 +203,7 @@ ofc_file_t* ofc_file_create_include(
 	{
 		file->parent = parent_file;
 		file->include_stmt = include_stmt;
-		file->include = parent_file->include;
+		file->ast.include = parent_file->ast.include;
 	}
 
 	return file;
@@ -237,7 +237,7 @@ void ofc_file_delete(ofc_file_t* file)
 
 	/* The root file is responsible for cleaning up */
 	if (!file->parent)
-		ofc_file_include_list_delete(file->include);
+		ofc_file_include_list_delete(file->ast.include);
 
 	free(file);
 }
@@ -351,25 +351,25 @@ bool ofc_file_include_list_add_create(
 	if (!file || !path)
 		return false;
 
-	if (!file->include)
+	if (!file->ast.include)
 	{
-		file->include = (ofc_file_include_list_t*)malloc(
+		file->ast.include = (ofc_file_include_list_t*)malloc(
 			sizeof(ofc_file_include_list_t));
 
-		if (!file->include)
+		if (!file->ast.include)
 			return false;
 
-		file->include->count = 0;
-		file->include->path = NULL;
+		file->ast.include->count = 0;
+		file->ast.include->path = NULL;
 	}
 
 	char** nlist
-		= (char**)realloc(file->include->path,
-			(sizeof(char*) * (file->include->count + 1)));
+		= (char**)realloc(file->ast.include->path,
+			(sizeof(char*) * (file->ast.include->count + 1)));
 	if (!nlist) return NULL;
 
-	file->include->path = nlist;
-	file->include->path[file->include->count++] = strdup(path);
+	file->ast.include->path = nlist;
+	file->ast.include->path[file->ast.include->count++] = strdup(path);
 
 	return true;
 }

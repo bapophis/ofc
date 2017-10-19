@@ -37,7 +37,7 @@ struct ast_file_s
 //	ofc_sparse_ref_t include_stmt;
 
 char*                    path; //ast
-//	ofc_file_include_list_t* include;
+	ofc_file_include_list_t* include;
 char*                    strz; //ast
 //	ofc_lang_opts_t          opts;
 unsigned                 size; //ast
