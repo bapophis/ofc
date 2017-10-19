@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #include "ofc/label_table.h"
-
+/*
 typedef struct label_s label_t;
 
 struct label_s
@@ -32,7 +32,7 @@ struct ofc_label_table_s
 {
 	label_t* base[256];
 };
-
+*/
 
 ofc_label_table_t* ofc_label_table_create(void)
 {
