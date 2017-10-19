@@ -42,9 +42,10 @@ typedef struct ofc_sema_module_list_s       ofc_sema_module_list_t;
 typedef struct ofc_sema_format_label_list_s ofc_sema_format_label_list_t;
 */
 #include <ast/sema/kind.h>
+
+//#include <ofc/sema/array.h>
+#include <ast/sema/structure.h>
 /*
-#include <ofc/sema/array.h>
-#include <ofc/sema/structure.h>
 #include <ofc/sema/typeval.h>
 #include <ofc/sema/parameter.h>
 #include <ofc/sema/equiv.h>

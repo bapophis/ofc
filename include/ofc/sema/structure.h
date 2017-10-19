@@ -15,7 +15,7 @@
 
 #ifndef __ofc_sema_structure_h__
 #define __ofc_sema_structure_h__
-
+/*
 typedef enum
 {
 	OFC_SEMA_STRUCTURE_VAX_STRUCTURE,
@@ -24,7 +24,7 @@ typedef enum
 	OFC_SEMA_STRUCTURE_F90_TYPE,
 	OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE,
 } ofc_sema_structure_e;
-
+*/
 typedef struct ofc_sema_structure_s ofc_sema_structure_t;
 
 typedef struct
@@ -41,8 +41,8 @@ typedef struct
 struct ofc_sema_structure_s
 {
 	ofc_sparse_ref_t      name;
-	ofc_sema_structure_e  type;
-
+//	ofc_sema_structure_e  type;
+	ast_sema_structure_t ast;
 	ofc_sema_implicit_t* implicit;
 
 	unsigned count;

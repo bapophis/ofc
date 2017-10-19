@@ -82,7 +82,7 @@ static ofc_sema_structure_t* ofc_sema__structure(
 	}
 
 	structure->name = stmt->structure.name;
-	structure->type = type;
+	structure->ast.type = type;
 
 	const ofc_sema_implicit_t* simplicit
 		= ofc_sema_scope_implicit(scope);
@@ -124,14 +124,14 @@ static ofc_sema_structure_t* ofc_sema__structure(
 				&& (stmt->structure.block->stmt[i]->type
 					== OFC_PARSE_STMT_SEQUENCE))
 			{
-				if (structure->type
+				if (structure->ast.type
 					== OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE)
 				{
 					ofc_sparse_ref_warning(
 						stmt->structure.block->stmt[i]->src,
 						"Redundant SEQUENCE statement in TYPE");
 				}
-				else if (structure->type
+				else if (structure->ast.type
 					!= OFC_SEMA_STRUCTURE_F90_TYPE)
 				{
 					ofc_sparse_ref_warning(
@@ -141,7 +141,7 @@ static ofc_sema_structure_t* ofc_sema__structure(
 				}
 				else
 				{
-					structure->type
+					structure->ast.type
 						= OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE;
 				}
 			}
@@ -538,7 +538,7 @@ bool ofc_sema_structure_is_union(
 	if (!structure)
 		return false;
 
-	switch (structure->type)
+	switch (structure->ast.type)
 	{
 		case OFC_SEMA_STRUCTURE_VAX_UNION:
 			return true;
@@ -572,7 +572,7 @@ bool ofc_sema_structure_is_derived_type(
 	if (!structure)
 		return false;
 
-	switch (structure->type)
+	switch (structure->ast.type)
 	{
 		case OFC_SEMA_STRUCTURE_F90_TYPE:
 		case OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE:
@@ -776,7 +776,7 @@ bool ofc_sema_structure_print(
 		return false;
 
 	const char* kwstr;
-	switch (structure->type)
+	switch (structure->ast.type)
 	{
 		case OFC_SEMA_STRUCTURE_F90_TYPE:
 		case OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE:
@@ -805,7 +805,7 @@ bool ofc_sema_structure_print(
 	bool has_name = !ofc_sparse_ref_empty(structure->name);
 	if (has_name)
 	{
-		if (structure->type == OFC_SEMA_STRUCTURE_VAX_STRUCTURE)
+		if (structure->ast.type == OFC_SEMA_STRUCTURE_VAX_STRUCTURE)
 		{
 			if (!ofc_colstr_atomic_writef(cs, " ")
 				|| !ofc_colstr_atomic_writef(cs, "/")
@@ -821,7 +821,7 @@ bool ofc_sema_structure_print(
 		}
 	}
 
-	if (structure->type == OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE)
+	if (structure->ast.type == OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE)
 	{
 		if (!ofc_colstr_newline(cs, (indent + 1), NULL)
 			|| !ofc_colstr_atomic_writef(cs, "SEQUENCE"))

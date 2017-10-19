@@ -22,7 +22,7 @@ static bool ofc_sema_pass_struct_type__struct(
 	if (!structure || !scope)
 		return false;
 
-	if (structure->type != OFC_SEMA_STRUCTURE_VAX_STRUCTURE)
+	if (structure->ast.type != OFC_SEMA_STRUCTURE_VAX_STRUCTURE)
 		return true;
 
 	if (ofc_sema_structure_is_nested(structure))
@@ -36,7 +36,7 @@ static bool ofc_sema_pass_struct_type__struct(
 			scope->derived_type, structure))
 			return false;
 
-		structure->type = OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE;
+		structure->ast.type = OFC_SEMA_STRUCTURE_F90_TYPE_SEQUENCE;
 
 		ofc_sema_structure_list_remove(
 			scope->structure, structure);
