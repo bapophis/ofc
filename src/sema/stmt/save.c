@@ -26,13 +26,13 @@ bool ofc_sema_stmt_save(
 
 	if (!stmt->save.list)
 	{
-		if (scope->attr_save)
+		if (scope->ast.attr_save)
 		{
 			ofc_sparse_ref_warning(stmt->src,
 				"Scope already marked as SAVE");
 		}
 
-		scope->attr_save = true;
+		scope->ast.attr_save = true;
 		return true;
 	}
 

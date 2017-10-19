@@ -23,7 +23,7 @@ static bool ofc_sema_pass_unlabelled_continue__scope(
 	if (!scope)
 		return false;
 
-	if ((scope->type != OFC_SEMA_SCOPE_STMT_FUNC) && scope->stmt)
+	if ((scope->ast.type != OFC_SEMA_SCOPE_STMT_FUNC) && scope->stmt)
 	{
 		ofc_sema_stmt_list_t* list = scope->stmt;
 

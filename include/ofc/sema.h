@@ -20,6 +20,8 @@
 #include <ofc/hashmap.h>
 #include <ofc/global_opts.h>
 
+#include <ast/sema.h>
+
 typedef struct ofc_sema_stmt_s       ofc_sema_stmt_t;
 typedef struct ofc_sema_scope_s      ofc_sema_scope_t;
 typedef struct ofc_sema_module_s     ofc_sema_module_t;
@@ -38,7 +40,6 @@ typedef struct ofc_sema_lhs_list_s          ofc_sema_lhs_list_t;
 typedef struct ofc_sema_module_list_s       ofc_sema_module_list_t;
 typedef struct ofc_sema_format_label_list_s ofc_sema_format_label_list_t;
 
-#include <ast/sema.h>
 
 //#include <ofc/sema/kind.h>
 #include <ofc/sema/array.h>

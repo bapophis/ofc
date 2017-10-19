@@ -16,6 +16,9 @@
 #ifndef __ast_sema_h__
 #define __ast_sema_h__
 
+
+typedef struct ast_sema_scope_s ast_sema_scope_t;
+
 //#include <ofc/parse.h>
 //#include <ofc/hashmap.h>
 //#include <ofc/global_opts.h>

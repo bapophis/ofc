@@ -246,8 +246,8 @@ static bool ofc_global_pass_args__check(
 	if (!list || !scope)
 		return false;
 
-	if ((scope->type != OFC_SEMA_SCOPE_SUBROUTINE)
-		&& (scope->type != OFC_SEMA_SCOPE_FUNCTION))
+	if ((scope->ast.type != OFC_SEMA_SCOPE_SUBROUTINE)
+		&& (scope->ast.type != OFC_SEMA_SCOPE_FUNCTION))
 		return false;
 
 	unsigned i;
@@ -358,11 +358,11 @@ static bool ofc_global_pass_args__check(
 			}
 		}
 
-		if (scope->type == OFC_SEMA_SCOPE_FUNCTION)
+		if (scope->ast.type == OFC_SEMA_SCOPE_FUNCTION)
 		{
 			const ofc_sema_decl_t* func_decl
 				= ofc_sema_scope_decl_find(
-					scope, scope->name, true);
+					scope, scope->ast.name, true);
 			const ofc_sema_type_t* func_type
 				= ofc_sema_decl_type(func_decl);
 			const ofc_sema_type_t* ret_type
@@ -397,13 +397,13 @@ static bool ofc_global_pass_args__scope_decl(
 	ofc_sema_scope_t* scope,
 	ofc_hashmap_t* args_table)
 {
-	if ((scope->type != OFC_SEMA_SCOPE_SUBROUTINE)
-		&& (scope->type != OFC_SEMA_SCOPE_FUNCTION))
+	if ((scope->ast.type != OFC_SEMA_SCOPE_SUBROUTINE)
+		&& (scope->ast.type != OFC_SEMA_SCOPE_FUNCTION))
 		return true;
 
 	ofc_subroutine_list_t* list
 		= ofc_hashmap_find_modify(
-			args_table, &scope->name);
+			args_table, &scope->ast.name);
 	if (list)
 	{
 		ofc_global_pass_args__check(list, scope);
@@ -411,8 +411,8 @@ static bool ofc_global_pass_args__scope_decl(
 	else if (global_opts.warn_unused_procedure)
 	{
 		ofc_file_warning(NULL, NULL, "Unused %s '%.*s'",
-			((scope->type == OFC_SEMA_SCOPE_SUBROUTINE) ? "SUBROUTINE" : "FUNCTION"),
-			scope->name.size, scope->name.base);
+			((scope->ast.type == OFC_SEMA_SCOPE_SUBROUTINE) ? "SUBROUTINE" : "FUNCTION"),
+			scope->ast.name.size, scope->ast.name.base);
 	}
 
 	/* What about the calls that don't have a function declaration? */

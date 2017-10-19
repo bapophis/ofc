@@ -660,7 +660,7 @@ static bool ofc_sema_stmt_list__entry(
 	if (!scope)
 		return false;
 
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_GLOBAL:
 		case OFC_SEMA_SCOPE_BLOCK_DATA:

@@ -54,7 +54,7 @@ bool ofc_sema_module_print(
 
 	if (!ofc_colstr_atomic_writef(cs, "USE")
 		|| !ofc_colstr_atomic_writef(cs, " ")
-		|| !ofc_str_ref_print(cs, module->scope->name))
+		|| !ofc_str_ref_print(cs, module->scope->ast.name))
 		return false;
 
 	if (module->rename)

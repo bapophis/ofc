@@ -89,20 +89,20 @@ static ofc_sema_scope_t* ofc_sema_scope__create(
 	scope->parent = parent;
 	scope->child  = NULL;
 
-	scope->type = type;
-	scope->name = OFC_STR_REF_EMPTY;
+	scope->ast.type = type;
+	scope->ast.name = OFC_STR_REF_EMPTY;
 	scope->args = NULL;
 
 	scope->module = NULL;
 
-	scope->attr_external = false;
-	scope->attr_intrinsic = false;
-	scope->attr_save = false;
-	scope->attr_recursive = false;
+	scope->ast.attr_external = false;
+	scope->ast.attr_intrinsic = false;
+	scope->ast.attr_save = false;
+	scope->ast.attr_recursive = false;
 
-	scope->contains_automatic = false;
+	scope->ast.contains_automatic = false;
 
-	scope->access = OFC_SEMA_ACCESSIBILITY_DEFAULT;
+	scope->ast.access = OFC_SEMA_ACCESSIBILITY_DEFAULT;
 
 	scope->decl = NULL;
 
@@ -121,7 +121,7 @@ static ofc_sema_scope_t* ofc_sema_scope__create(
 
 	scope->external = NULL;
 
-	if (scope->type == OFC_SEMA_SCOPE_SUPER)
+	if (scope->ast.type == OFC_SEMA_SCOPE_SUPER)
 		return scope;
 
 	scope->decl = ofc_sema_decl_list_create(
@@ -131,7 +131,7 @@ static ofc_sema_scope_t* ofc_sema_scope__create(
 		global_opts.case_sensitive);
 
 	bool alloc_fail = !scope->decl;
-	if (scope->type != OFC_SEMA_SCOPE_STMT_FUNC)
+	if (scope->ast.type != OFC_SEMA_SCOPE_STMT_FUNC)
 	{
 		scope->implicit = (parent
 			? ofc_sema_implicit_copy(parent->implicit) : NULL);
@@ -392,7 +392,7 @@ static bool ofc_sema_scope__body(
 	ofc_sema_scope_t* scope,
 	const ofc_parse_stmt_list_t* body)
 {
-	if (scope->type == OFC_SEMA_SCOPE_STMT_FUNC)
+	if (scope->ast.type == OFC_SEMA_SCOPE_STMT_FUNC)
 		return false;
 
 	if (!body)
@@ -574,7 +574,7 @@ bool ofc_sema_scope_subroutine(
 			OFC_SEMA_SCOPE_SUBROUTINE);
 	if (!sub_scope) return false;
 	sub_scope->src  = stmt->src;
-	sub_scope->name = name.string;
+	sub_scope->ast.name = name.string;
 
 	if (stmt->program.args)
 	{
@@ -637,7 +637,7 @@ bool ofc_sema_scope_function(
 			OFC_SEMA_SCOPE_FUNCTION);
 	if (!func_scope) return false;
 	func_scope->src  = stmt->src;
-	func_scope->name = name.string;
+	func_scope->ast.name = name.string;
 
 	ofc_sema_decl_t* rdecl
 		= ofc_sema_scope_decl_find_create_ns(
@@ -787,7 +787,7 @@ ofc_sema_scope_t* ofc_sema_scope_program(
 	if (!program) return NULL;
 
 	program->src  = stmt->src;
-	program->name = stmt->program.name.string;
+	program->ast.name = stmt->program.name.string;
 
 	if (stmt->program.end_has_label
 		&& !ofc_sema_label_map_add_end_scope(
@@ -986,7 +986,7 @@ ofc_sema_scope_t* ofc_sema_scope_module(
 		return NULL;
 	}
 	module->src  = stmt->src;
-	module->name = stmt->program.name.string;
+	module->ast.name = stmt->program.name.string;
 
 	if (stmt->program.end_has_label
 		&& !ofc_sema_label_map_add_end_scope(
@@ -1047,7 +1047,7 @@ ofc_sema_scope_t* ofc_sema_scope_block_data(
 	if (!block_data) return NULL;
 
 	block_data->src  = stmt->src;
-	block_data->name = stmt->program.name.string;
+	block_data->ast.name = stmt->program.name.string;
 
 	if (!ofc_sema_scope__body(
 		block_data, stmt->program.body))
@@ -1076,7 +1076,7 @@ bool ofc_sema_scope_is_procedure(
 	if (!scope)
 		return false;
 
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_STMT_FUNC:
 		case OFC_SEMA_SCOPE_SUBROUTINE:
@@ -1092,7 +1092,7 @@ bool ofc_sema_scope_is_procedure(
 const ofc_str_ref_t* ofc_sema_scope_get_name(
 	const ofc_sema_scope_t* scope)
 {
-	return (!scope ? NULL : &scope->name);
+	return (!scope ? NULL : &scope->ast.name);
 }
 
 
@@ -1179,7 +1179,7 @@ const ofc_sema_decl_t* ofc_sema_scope_decl_find(
 	if (!scope)
 		return NULL;
 
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_STMT_FUNC:
 			break;
@@ -1206,7 +1206,7 @@ ofc_sema_decl_t* ofc_sema_scope_decl_find_modify(
 	if (!scope)
 		return NULL;
 
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_STMT_FUNC:
 			break;
@@ -1239,7 +1239,7 @@ ofc_sema_decl_t* ofc_sema_scope_decl_find__create(
 			scope->decl, name.string);
 	if (decl) return decl;
 
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_STMT_FUNC:
 			break;
@@ -1260,7 +1260,7 @@ ofc_sema_decl_t* ofc_sema_scope_decl_find__create(
 		decl = ofc_sema_decl_create(
 			ofc_sema_scope_implicit(scope), name);
 		if (!decl) return NULL;
-		decl->is_static = scope->attr_save;
+		decl->is_static = scope->ast.attr_save;
 
 		if (name_space != NULL)
 		{
@@ -1489,7 +1489,7 @@ static bool ofc_sema_scope_body__print(
 	}
 
 	bool implicit_none = true;
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_GLOBAL:
 		case OFC_SEMA_SCOPE_STMT_FUNC:
@@ -1528,13 +1528,13 @@ static bool ofc_sema_scope_body__print(
 			return false;
 	}
 
-	if (scope->type == OFC_SEMA_SCOPE_MODULE)
+	if (scope->ast.type == OFC_SEMA_SCOPE_MODULE)
 	{
-		if ((scope->access == OFC_SEMA_ACCESSIBILITY_PUBLIC)
+		if ((scope->ast.access == OFC_SEMA_ACCESSIBILITY_PUBLIC)
 			&& (!ofc_colstr_newline(cs, indent, NULL)
 				|| !ofc_colstr_keyword_atomic_writez(cs, "PUBLIC")))
 			return false;
-		if ((scope->access == OFC_SEMA_ACCESSIBILITY_PRIVATE)
+		if ((scope->ast.access == OFC_SEMA_ACCESSIBILITY_PRIVATE)
 			&& (!ofc_colstr_newline(cs, indent, NULL)
 				|| !ofc_colstr_keyword_atomic_writez(cs, "PRIVATE")))
 			return false;
@@ -1571,7 +1571,7 @@ static bool ofc_sema_scope_body__print(
 		return false;
 	}
 
-	if (scope->decl && (scope->type != OFC_SEMA_SCOPE_GLOBAL)
+	if (scope->decl && (scope->ast.type != OFC_SEMA_SCOPE_GLOBAL)
 		&& !ofc_sema_decl_list_procedure_spec_print(cs, indent, scope->decl))
 	{
 		ofc_file_error(NULL, NULL,
@@ -1624,13 +1624,13 @@ bool ofc_sema_scope_print(
 	bool is_procedure = false;
 	bool implicit = false;
 	const char* kwstr = NULL;
-	switch (scope->type)
+	switch (scope->ast.type)
 	{
 		case OFC_SEMA_SCOPE_GLOBAL:
 			break;
 		case OFC_SEMA_SCOPE_PROGRAM:
 			kwstr = "PROGRAM";
-			implicit = ofc_str_ref_empty(scope->name);
+			implicit = ofc_str_ref_empty(scope->ast.name);
 			break;
 		case OFC_SEMA_SCOPE_SUBROUTINE:
 			kwstr = "SUBROUTINE";
@@ -1655,7 +1655,7 @@ bool ofc_sema_scope_print(
 
 	if (kwstr && !implicit)
 	{
-		if (scope->type != OFC_SEMA_SCOPE_FUNCTION)
+		if (scope->ast.type != OFC_SEMA_SCOPE_FUNCTION)
 		{
 			/* Decl function printing will handle the new lines
 			   as we need to specify the return type. */
@@ -1666,9 +1666,9 @@ bool ofc_sema_scope_print(
 		const ofc_print_opts_t* opts
 			= ofc_colstr_print_opts_get(cs);
 
-		bool is_recursive = scope->attr_recursive;
+		bool is_recursive = scope->ast.attr_recursive;
 
-		if (scope->contains_automatic
+		if (scope->ast.contains_automatic
 			&& is_procedure
 			&& (!opts || !opts->automatic))
 			is_recursive = true;
@@ -1684,14 +1684,14 @@ bool ofc_sema_scope_print(
 			|| !ofc_colstr_atomic_writef(cs, " "))
 			return false;
 
-		if (scope->name.base)
+		if (scope->ast.name.base)
 		{
 			if (!ofc_colstr_atomic_writef(cs, "%.*s",
-				scope->name.size, scope->name.base))
+				scope->ast.name.size, scope->ast.name.base))
 					return false;
 		}
 
-		switch (scope->type)
+		switch (scope->ast.type)
 		{
 			case OFC_SEMA_SCOPE_FUNCTION:
 			case OFC_SEMA_SCOPE_SUBROUTINE:
@@ -1723,10 +1723,10 @@ bool ofc_sema_scope_print(
 			|| !ofc_colstr_keyword_atomic_writef(cs, "END %s ", kwstr))
 			return false;
 
-		if (scope->name.base)
+		if (scope->ast.name.base)
 		{
 			if (!ofc_colstr_atomic_writef(cs, "%.*s",
-				scope->name.size, scope->name.base))
+				scope->ast.name.size, scope->ast.name.base))
 					return false;
 		}
 	}
@@ -1761,7 +1761,7 @@ ofc_sema_scope_t* ofc_sema_scope_list_find_name(
 		/* TODO - Handle case sensitivity flag */
 
         if (ofc_str_ref_equal_ci(
-			list->scope[i]->name, name))
+			list->scope[i]->ast.name, name))
 				return list->scope[i];
 	}
 
@@ -1779,8 +1779,8 @@ static ofc_sema_scope_t* ofc_sema_scope_list__find_type_name(
 	unsigned i;
 	for (i = 0; i < list->count; i++)
 	{
-		if (ofc_str_ref_equal_ci(list->scope[i]->name, name)
-			&& (list->scope[i]->type == type))
+		if (ofc_str_ref_equal_ci(list->scope[i]->ast.name, name)
+			&& (list->scope[i]->ast.type == type))
 				return list->scope[i];
 	}
 
@@ -1966,7 +1966,7 @@ bool ofc_sema_scope_foreach_expr(
 	if (!scope || !func)
 		return false;
 
-	if ((scope->type == OFC_SEMA_SCOPE_STMT_FUNC)
+	if ((scope->ast.type == OFC_SEMA_SCOPE_STMT_FUNC)
 		&& scope->expr && !func(scope->expr, param))
 		return false;
 
@@ -1985,7 +1985,7 @@ bool ofc_sema_scope_foreach_expr(
 			scope->decl, param, func))
 		return false;
 
-	if ((scope->type != OFC_SEMA_SCOPE_STMT_FUNC)
+	if ((scope->ast.type != OFC_SEMA_SCOPE_STMT_FUNC)
 		&& scope->stmt
 		&& !ofc_sema_stmt_list_foreach_expr(
 			scope->stmt, param, func))

@@ -729,7 +729,7 @@ static bool ofc_sema_decl__elem(
 	}
 
 	if ((is_public || is_private)
-		&& (scope->type != OFC_SEMA_SCOPE_MODULE))
+		&& (scope->ast.type != OFC_SEMA_SCOPE_MODULE))
 	{
 		ofc_sparse_ref_error(decl->name,
 			"%s declaration only allowed in MODULE",
@@ -2054,7 +2054,7 @@ bool ofc_sema_decl_is_stmt_func(
 {
 	if (!decl || !decl->func)
 		return false;
-	return (decl->func->type
+	return (decl->func->ast.type
 		== OFC_SEMA_SCOPE_STMT_FUNC);
 }
 
@@ -3354,13 +3354,13 @@ bool ofc_sema_decl_list_procedure_print(
 		ofc_sema_decl_t* decl = decl_list->decl[i];
 		if (decl && decl->func)
 		{
-			if (decl->func->type == OFC_SEMA_SCOPE_SUBROUTINE)
+			if (decl->func->ast.type == OFC_SEMA_SCOPE_SUBROUTINE)
 			{
 				if (!ofc_colstr_newline(cs, indent, NULL)
 					|| !ofc_sema_scope_print(cs, indent, decl->func))
 					return false;
 			}
-			else if (decl->func->type == OFC_SEMA_SCOPE_FUNCTION)
+			else if (decl->func->ast.type == OFC_SEMA_SCOPE_FUNCTION)
 			{
 				if (!ofc_colstr_newline(cs, indent, NULL)
 					|| !ofc_colstr_newline(cs, indent, NULL)

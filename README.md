@@ -7,6 +7,7 @@ exposed in ast headers:
 * str\_ref
 * accessibility\_e
 * kind\_e
+* initial minimal sema\_scope (mostly bools)
 
 # OFC - Open Fortran Compiler
 

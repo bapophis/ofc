@@ -42,7 +42,7 @@ bool ofc_sema_stmt__public_private(
 			return false;
 	}
 
-	if (scope->type != OFC_SEMA_SCOPE_MODULE)
+	if (scope->ast.type != OFC_SEMA_SCOPE_MODULE)
 	{
 		ofc_sparse_ref_error(stmt->src,
 			"%s not allowed outside of MODULE", kwstr);
@@ -51,13 +51,13 @@ bool ofc_sema_stmt__public_private(
 
 	if (!stmt->public_private.list)
 	{
-		if ((is_public && (scope->access == OFC_SEMA_ACCESSIBILITY_PUBLIC))
-			|| (!is_public && (scope->access == OFC_SEMA_ACCESSIBILITY_PRIVATE)))
+		if ((is_public && (scope->ast.access == OFC_SEMA_ACCESSIBILITY_PUBLIC))
+			|| (!is_public && (scope->ast.access == OFC_SEMA_ACCESSIBILITY_PRIVATE)))
 		{
 			ofc_sparse_ref_warning(stmt->src,
 				"Scope already marked as %s", kwstr);
 		}
-		else if (scope->access != OFC_SEMA_ACCESSIBILITY_DEFAULT)
+		else if (scope->ast.access != OFC_SEMA_ACCESSIBILITY_DEFAULT)
 		{
 			ofc_sparse_ref_error(stmt->src,
 				"Scope already marked as %s",
@@ -66,9 +66,9 @@ bool ofc_sema_stmt__public_private(
 		}
 
 		if (is_public)
-			scope->access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
+			scope->ast.access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
 		else
-			scope->access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
+			scope->ast.access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
 
 		return true;
 	}

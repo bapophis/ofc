@@ -15,9 +15,9 @@
 
 #ifndef __ofc_sema_scope_h__
 #define __ofc_sema_scope_h__
-
+#include "ast/sema/scope.h"
 #include <ofc/sema/intrinsic.h>
-
+/*
 typedef enum
 {
 	OFC_SEMA_SCOPE_SUPER = 0,
@@ -31,7 +31,7 @@ typedef enum
 
 	OFC_SEMA_SCOPE_COUNT
 } ofc_sema_scope_e;
-
+*/
 typedef struct
 {
 	unsigned           count;
@@ -47,18 +47,19 @@ struct ofc_sema_scope_s
 	ofc_sema_scope_t*      parent;
 	ofc_sema_scope_list_t* child;
 
-	ofc_sema_scope_e     type;
-	ofc_str_ref_t        name;
+	ast_sema_scope_t ast;
+//	ofc_sema_scope_e     type;
+//	ofc_str_ref_t        name;
 	ofc_sema_arg_list_t* args;
 
-	ofc_sema_accessibility_e access;
+//	ofc_sema_accessibility_e access;
 
-	bool attr_external;
-	bool attr_intrinsic;
-	bool attr_save;
-	bool attr_recursive;
+//	bool attr_external;
+//	bool attr_intrinsic;
+//	bool attr_save;
+//	bool attr_recursive;
 
-	bool contains_automatic;
+//	bool contains_automatic;
 
 	ofc_sema_implicit_t*  implicit;
 
