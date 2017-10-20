@@ -8,6 +8,9 @@ exposed in ast headers:
 * accessibility\_e
 * kind\_e
 * initial minimal sema\_scope (mostly bools)
+* structure\_e, ast\_structure
+* type, typeval
+* initial intrinsic
 
 # OFC - Open Fortran Compiler
 

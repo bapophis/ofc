@@ -91,7 +91,7 @@ bool ofc_sema_intrinsic_name_reserved(const char* name)
 
 	return false;
 }
-
+/*
 typedef enum
 {
 	OFC_SEMA_INTRINSIC_OP,
@@ -100,17 +100,18 @@ typedef enum
 
 	OFC_SEMA_INTRINSIC_INVALID
 } ofc_sema_intrinsic_e;
-
+*/
+/*
 typedef enum
 {
 	OFC_SEMA_INTRINSIC__TYPE_NORMAL = 0,
 	OFC_SEMA_INTRINSIC__TYPE_ANY,
 	OFC_SEMA_INTRINSIC__TYPE_SCALAR,
 
-	/* Same as argument(s) */
+	// Same as argument(s) 
 	OFC_SEMA_INTRINSIC__TYPE_SAME,
 
-	/* Return type calculated in callback */
+	// Return type calculated in callback 
 	OFC_SEMA_INTRINSIC__TYPE_CALLBACK,
 } ofc_sema_intrinsic__type_e;
 
@@ -123,58 +124,59 @@ typedef struct
 	bool                       intent_in;
 	bool                       intent_out;
 } ofc_sema_intrinsic__param_t;
-
+*/
+/*
 static const ofc_sema_intrinsic__param_t ofc_sema_intrinsic__param[] =
 {
-	{ OFC_SEMA_INTRINSIC__TYPE_ANY     , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* ANY  */
-	{ OFC_SEMA_INTRINSIC__TYPE_SAME    , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* SAME */
-	{ OFC_SEMA_INTRINSIC__TYPE_SCALAR  , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* SCALAR */
-	{ OFC_SEMA_INTRINSIC__TYPE_CALLBACK, 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* CALLBACK */
+	{ OFC_SEMA_INTRINSIC__TYPE_ANY     , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, // ANY  
+	{ OFC_SEMA_INTRINSIC__TYPE_SAME    , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, // SAME 
+	{ OFC_SEMA_INTRINSIC__TYPE_SCALAR  , 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, // SCALAR 
+	{ OFC_SEMA_INTRINSIC__TYPE_CALLBACK, 0, OFC_SEMA_KIND_NONE, 0, 1, 0 }, // CALLBACK 
 
-	{ 0, OFC_SEMA_TYPE_LOGICAL  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* LOGICAL */
-	{ 0, OFC_SEMA_TYPE_INTEGER  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* INTEGER */
-	{ 0, OFC_SEMA_TYPE_REAL     , OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* REAL */
-	{ 0, OFC_SEMA_TYPE_COMPLEX  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* COMPLEX */
-	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 0, 1, 0 }, /* CHARACTER */
+	{ 0, OFC_SEMA_TYPE_LOGICAL  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, // LOGICAL 
+	{ 0, OFC_SEMA_TYPE_INTEGER  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, // INTEGER 
+	{ 0, OFC_SEMA_TYPE_REAL     , OFC_SEMA_KIND_NONE, 0, 1, 0 }, // REAL 
+	{ 0, OFC_SEMA_TYPE_COMPLEX  , OFC_SEMA_KIND_NONE, 0, 1, 0 }, // COMPLEX 
+	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 0, 1, 0 }, // CHARACTER 
 
-	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 1, 1, 0 }, /* CHARACTER_1 */
+	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 1, 1, 0 }, // CHARACTER_1 
 
-	{ 0, OFC_SEMA_TYPE_LOGICAL, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, /* DEF_LOGICAL */
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, /* DEF_INTEGER */
-	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, /* DEF_REAL */
-	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, /* DEF_COMPLEX */
+	{ 0, OFC_SEMA_TYPE_LOGICAL, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, // DEF_LOGICAL 
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, // DEF_INTEGER 
+	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, // DEF_REAL 
+	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_DEFAULT, 0, 1, 0 }, // DEF_COMPLEX 
 
-	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_DOUBLE, 0, 1, 0 }, /* DEF_DOUBLE */
-	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_DOUBLE, 0, 1, 0 }, /* DEF_DOUBLE_COMPLEX */
+	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_DOUBLE, 0, 1, 0 }, // DEF_DOUBLE 
+	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_DOUBLE, 0, 1, 0 }, // DEF_DOUBLE_COMPLEX
 
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_HALF, 0, 1, 0 }, /* DEF_HALF_INTEGER */
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_HALF, 0, 1, 0 }, // DEF_HALF_INTEGER 
 
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_1_BYTE, 0, 1, 0 }, /* INTEGER_1 */
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_2_BYTE, 0, 1, 0 }, /* INTEGER_2 */
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_4_BYTE, 0, 1, 0 }, /* INTEGER_4 */
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_1_BYTE, 0, 1, 0 }, // INTEGER_1 
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_2_BYTE, 0, 1, 0 }, // INTEGER_2 
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_4_BYTE, 0, 1, 0 }, // INTEGER_4 
 
-	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_16_BYTE, 0, 1, 0 }, /* REAL_16 */
-	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_16_BYTE, 0, 1, 0 }, /* COMPLEX_32 */
+	{ 0, OFC_SEMA_TYPE_REAL   , OFC_SEMA_KIND_16_BYTE, 0, 1, 0 }, // REAL_16 
+	{ 0, OFC_SEMA_TYPE_COMPLEX, OFC_SEMA_KIND_16_BYTE, 0, 1, 0 }, // COMPLEX_32 
 
-	{ 0, OFC_SEMA_TYPE_REAL, OFC_SEMA_KIND_DEFAULT, 2, 1, 0 }, /* DEF_REAL_A2 */
-	{ 0, OFC_SEMA_TYPE_REAL, OFC_SEMA_KIND_DEFAULT, 2, 0, 1 }, /* DEF_REAL_A2_OUT */
+	{ 0, OFC_SEMA_TYPE_REAL, OFC_SEMA_KIND_DEFAULT, 2, 1, 0 }, // DEF_REAL_A2 
+	{ 0, OFC_SEMA_TYPE_REAL, OFC_SEMA_KIND_DEFAULT, 2, 0, 1 }, // DEF_REAL_A2_OUT 
 
-	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 0, 0, 1 }, /* CHARACTER_OUT */
-	{ 0, OFC_SEMA_TYPE_INTEGER  , OFC_SEMA_KIND_NONE, 0, 0, 1 }, /* INTEGER_OUT */
-	{ 0, OFC_SEMA_TYPE_REAL     , OFC_SEMA_KIND_NONE, 0, 0, 1 }, /* REAL_OUT */
+	{ 0, OFC_SEMA_TYPE_CHARACTER, OFC_SEMA_KIND_NONE, 0, 0, 1 }, // CHARACTER_OUT 
+	{ 0, OFC_SEMA_TYPE_INTEGER  , OFC_SEMA_KIND_NONE, 0, 0, 1 }, // INTEGER_OUT 
+	{ 0, OFC_SEMA_TYPE_REAL     , OFC_SEMA_KIND_NONE, 0, 0, 1 }, // REAL_OUT 
 
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE,  3, 0, 1 }, /* INTEGER_A3_OUT */
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE, 13, 1, 0 }, /* INTEGER_A13 */
-	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE, 13, 0, 1 }, /* INTEGER_A13_OUT */
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE,  3, 0, 1 }, // INTEGER_A3_OUT 
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE, 13, 1, 0 }, // INTEGER_A13 
+	{ 0, OFC_SEMA_TYPE_INTEGER, OFC_SEMA_KIND_NONE, 13, 0, 1 }, // INTEGER_A13_OUT 
 };
-
-
+*/
+/*
 typedef enum
 {
-	IP_ANY = 0,  /* Any type */
-	IP_SAME,     /* Same as argument */
-	IP_SCALAR,   /* Any scalar type */
-	IP_CALLBACK, /* Use a callback to determine return type. */
+	IP_ANY = 0,  // Any type 
+	IP_SAME,     // Same as argument 
+	IP_SCALAR,   // Any scalar type 
+	IP_CALLBACK, // Use a callback to determine return type. 
 
 	IP_LOGICAL,
 	IP_INTEGER,
@@ -214,7 +216,7 @@ typedef enum
 
 	IP_COUNT
 } ofc_sema_intrinsic__param_e;
-
+*/
 
 static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_cast(
 	const ofc_sema_intrinsic_t* intrinsic,
@@ -387,9 +389,10 @@ typedef struct
 		const ofc_sema_dummy_arg_list_t*);
 } ofc_sema_intrinsic_op_t;
 
+
 static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list[] =
 {
-	/* Casts */
+	// Casts 
 	{ "INT"   , 1, 1, IP_DEF_INTEGER        , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 	{ "IFIX"  , 1, 1, IP_DEF_INTEGER        , IP_DEF_REAL          , ofc_sema_intrinsic_op__constant_cast },
 	{ "IDINT" , 1, 1, IP_DEF_INTEGER        , IP_DEF_DOUBLE        , ofc_sema_intrinsic_op__constant_cast },
@@ -410,19 +413,19 @@ static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list[] =
 	{ "DBLEQ" , 1, 1, IP_DEF_DOUBLE         , IP_REAL_16           , ofc_sema_intrinsic_op__constant_cast },
 	{ "QREAL" , 1, 1, IP_REAL_16            , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 	{ "QFLOAT", 1, 1, IP_REAL_16            , IP_DEF_INTEGER       , ofc_sema_intrinsic_op__constant_cast },
-	/* http://kiwi.atmos.colostate.edu/rr/tidbits/xlf/pgs/lr298.htm */
+	// http://kiwi.atmos.colostate.edu/rr/tidbits/xlf/pgs/lr298.htm 
 	{ "QEXT"  , 1, 1, IP_REAL_16            , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 	{ "QEXTD" , 1, 1, IP_REAL_16            , IP_DEF_DOUBLE        , ofc_sema_intrinsic_op__constant_cast },
 	{ "CMPLX" , 1, 2, IP_DEF_COMPLEX        , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 	{ "DCMPLX", 1, 2, IP_DEF_DOUBLE_COMPLEX , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 	{ "QCMPLX", 1, 2, IP_COMPLEX_32         , IP_ANY               , ofc_sema_intrinsic_op__constant_cast },
 
-	/* Truncation */
+	// Truncation 
 	{ "AINT", 1, 1, IP_SAME, IP_REAL      , NULL },
 	{ "DINT", 1, 1, IP_SAME, IP_DEF_DOUBLE, NULL },
 	{ "QINT", 1, 1, IP_SAME, IP_REAL_16   , NULL },
 
-	/* Rounding */
+	// Rounding 
 	{ "ANINT" , 1, 1, IP_SAME       , IP_REAL      , NULL },
 	{ "DNINT" , 1, 1, IP_SAME       , IP_DEF_DOUBLE, NULL },
 	{ "QNINT" , 1, 1, IP_SAME       , IP_REAL_16   , NULL },
@@ -449,19 +452,19 @@ static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list[] =
 	{ "CEILING", 1, 1, IP_SAME, IP_REAL, NULL },
 
 
-	/* Transfer of sign */
+	// Transfer of sign 
 	{ "SIGN" , 2, 2, IP_SAME, IP_SCALAR     , NULL },
 	{ "ISIGN", 2, 2, IP_SAME, IP_DEF_INTEGER, NULL },
 	{ "DSIGN", 2, 2, IP_SAME, IP_DEF_DOUBLE , NULL },
 	{ "QSIGN", 2, 2, IP_SAME, IP_REAL_16    , NULL },
 
-	/* Positive difference */
+	// Positive difference 
 	{ "DIM" , 2, 2, IP_SAME, IP_SCALAR     , NULL },
 	{ "IDIM", 2, 2, IP_SAME, IP_DEF_INTEGER, NULL },
 	{ "DDIM", 2, 2, IP_SAME, IP_DEF_DOUBLE , NULL },
 	{ "QDIM", 2, 2, IP_SAME, IP_REAL_16    , NULL },
 
-	/* Inner product */
+	// Inner product 
 	{ "DPROD", 2, 2, IP_DEF_DOUBLE, IP_DEF_REAL, NULL },
 	{ "QPROD", 2, 2, IP_DEF_DOUBLE, IP_REAL_16 , NULL },
 
@@ -527,7 +530,7 @@ static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list[] =
 	{ "DLOG10", 1, 1, IP_SAME, IP_DEF_DOUBLE, NULL },
 	{ "QLOG10", 1, 1, IP_SAME, IP_REAL_16   , NULL },
 
-	/* Trigonometric functions */
+	// Trigonometric functions 
 	{ "SIN"  , 1, 1, IP_SAME, IP_ANY               , NULL },
 	{ "DSIN" , 1, 1, IP_SAME, IP_DEF_DOUBLE        , NULL },
 	{ "CSIN" , 1, 1, IP_SAME, IP_DEF_COMPLEX       , NULL },
@@ -610,7 +613,8 @@ static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list[] =
 	{ NULL, 0, 0, 0, 0, NULL }
 };
 
-/* For the specific functions that are also generic */
+
+// For the specific functions that are also generic 
 static const ofc_sema_intrinsic_op_t ofc_sema_intrinsic__op_list_override[] =
 {
 	{ "AINT" , 1, 1, IP_SAME,        IP_DEF_REAL    , NULL },
@@ -846,7 +850,7 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__transfer_rt(
 
 	if (args->count >= 3)
 	{
-		/* TODO - INTRINSIC - Use 3rd parameter as array size if present. */
+		// TODO - INTRINSIC - Use 3rd parameter as array size if present. 
 		ofc_sparse_ref_error(args->dummy_arg[2]->src,
 			"TRANSFER SIZE argument not yet supported");
 		return NULL;
@@ -861,7 +865,7 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 {
 	(void)intrinsic;
 
-	/* TODO - INTRINSIC - Use 3rd parameter as array size if present. */
+	// TODO - INTRINSIC - Use 3rd parameter as array size if present. 
 	if ((args->count < 2)
 		|| (args->count >= 3))
 		return NULL;
@@ -972,7 +976,7 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 			return NULL;
 	}
 
-	/* TODO - INTRINSIC - Retain location in typeval. */
+	// TODO - INTRINSIC - Retain location in typeval. 
 	ofc_sema_typeval_t* rtv
 		= ofc_sema_typeval_create_integer(
 			0, OFC_SEMA_KIND_DEFAULT,
@@ -1009,7 +1013,7 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 
 			case OFC_SEMA_TYPE_INTEGER:
 			case OFC_SEMA_TYPE_BYTE:
-				/* We can't fold constants this large. */
+				// We can't fold constants this large. 
 				if (rsize > 8)
 				{
 					ofc_sema_typeval_delete(rtv);
@@ -1048,7 +1052,7 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 				}
 				else
 				{
-					/* We can't fold obscure float constants. */
+					// We can't fold obscure float constants. 
 					ofc_sema_typeval_delete(rtv);
 					return NULL;
 				}
@@ -1084,7 +1088,7 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 				}
 				else
 				{
-					/* We can't fold obscure float constants. */
+					// We can't fold obscure float constants. 
 					ofc_sema_typeval_delete(rtv);
 					return NULL;
 				}
@@ -1116,6 +1120,7 @@ typedef struct
 		const ofc_sema_intrinsic_t*,
 		const ofc_sema_dummy_arg_list_t*);
 } ofc_sema_intrinsic_func_t;
+
 
 static const ofc_sema_intrinsic_func_t ofc_sema_intrinsic__func_list[] =
 {
@@ -1183,6 +1188,7 @@ static const ofc_sema_intrinsic_func_t ofc_sema_intrinsic__func_list[] =
 	{ NULL, 0, 0, 0, { 0 }, NULL, NULL }
 };
 
+
 static const ofc_sema_intrinsic_func_t ofc_sema_intrinsic__subr_list[] =
 {
 	{ "ITime",  1, 1, 0, { IP_INTEGER_A3_OUT }, NULL, NULL },
@@ -1242,7 +1248,7 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__param_rtype(
 			break;
 
 		case OFC_SEMA_INTRINSIC__TYPE_ANY:
-			/* ANY is not a valid as a return type. */
+			// ANY is not a valid as a return type. 
 			return NULL;
 
 		case OFC_SEMA_INTRINSIC__TYPE_SAME:
@@ -1263,7 +1269,7 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__param_rtype(
 			return NULL;
 	}
 
-	/* Return value can never be an array. */
+	// Return value can never be an array. 
 	if ((p.type != OFC_SEMA_TYPE_CHARACTER)
 		&& (p.size != 0))
 		return NULL;
@@ -1589,7 +1595,7 @@ static bool ofc_sema_intrinsic__init(void)
 		&& ofc_sema_intrinsic__subr_map)
 		return true;
 
-	/* TODO - Set case sensitivity based on lang_opts? */
+	// TODO - Set case sensitivity based on lang_opts? 
 	if (!ofc_sema_intrinsic__op_map_init()
 		|| !ofc_sema_intrinsic__op_override_map_init()
 		|| !ofc_sema_intrinsic__func_map_init()
@@ -1713,7 +1719,7 @@ bool ofc_sema_stmt_intrinsic(
 		}
 		else if (decl->type_implicit)
 		{
-			/* Generic functions can't have a type */
+			// Generic functions can't have a type 
 			if (!ofc_sema_decl_type_set(
 				decl, NULL, decl_name))
 				return false;
@@ -1767,7 +1773,7 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__param_type(
 			if (valid) *valid = ofc_sema_type_is_scalar(type);
 			return ofc_sema_type_scalar(type);
 
-		/* Arguments can't be SAME or CALLBACK. */
+		// Arguments can't be SAME or CALLBACK. 
 		default:
 			return NULL;
 	}
@@ -1824,7 +1830,7 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__param_type(
 			return NULL;
 	}
 
-	/* TODO - INTRINSIC - Promote when KIND isn't specified and types differ. */
+	// TODO - INTRINSIC - Promote when KIND isn't specified and types differ. 
 
 	if (valid) *valid = ofc_sema_type_compatible(ctype, type);
 	return ctype;
@@ -1979,7 +1985,7 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__func(
 		return NULL;
 	}
 
-	/* TODO - Handle array arguments. */
+	// TODO - Handle array arguments. 
 
 	ofc_sema_dummy_arg_list_t* cargs
 		= ofc_sema_dummy_arg_list_create();
@@ -2082,7 +2088,7 @@ const ofc_sema_type_t* ofc_sema_intrinsic_type(
 				intrinsic->func->return_type, args,
 				intrinsic->func->return_type_callback);
 
-		/* Intrinsic subroutines have no return type*/
+		// Intrinsic subroutines have no return type
 		case OFC_SEMA_INTRINSIC_SUBR:
 			return NULL;
 
@@ -2112,7 +2118,7 @@ const ofc_sema_intrinsic_t* ofc_sema_intrinsic_cast_func(
 
 		if (ofc_sema_type_compare(ctype, type))
 		{
-			/* TODO - INTRINSIC - Find a neater way to do this lookup. */
+			// TODO - INTRINSIC - Find a neater way to do this lookup. 
 			const ofc_sema_intrinsic_t* intrinsic
 				= ofc_sema_intrinsic(ofc_str_ref_from_strz(
 					ofc_sema_intrinsic__op_list[i].name), false);
