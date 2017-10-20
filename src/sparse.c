@@ -63,6 +63,7 @@ static ofc_sparse_t* ofc_sparse__create(
 
 	sparse->file   = file;
 	sparse->parent = parent;
+	sparse->ast.parent = &(parent->ast);
 
 	sparse->ast.len       = 0;
 	sparse->ast.count     = 0;

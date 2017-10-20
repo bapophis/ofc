@@ -22,14 +22,14 @@
 typedef struct ast_sparse_s ast_sparse_t;
 
 
-//#include "ofc/str_ref.h"
-/*
+#include "ast/str_ref.h"
+
 typedef struct
 {
-	const ofc_sparse_t* sparse;
+	const ast_sparse_t* sparse;
 	ofc_str_ref_t       string;
-} ofc_sparse_ref_t;
-*/
+} ast_sparse_ref_t;
+
 
 typedef struct
 {
@@ -42,7 +42,7 @@ struct ast_sparse_s
 {
 //	ofc_file_t*   file;
 //	ofc_sparse_t* parent;
-
+	ast_sparse_t* parent; 
 	unsigned len, count, max_count;
 	ofc_sparse_entry_t* entry;
 
