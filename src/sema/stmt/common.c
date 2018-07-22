@@ -87,8 +87,8 @@ bool ofc_sema_stmt_common(
 				return false;
 			}
 
-			if (decl->common
-				&& (decl->common != common))
+			if (decl->ast.common
+				&& (decl->ast.common != common))
 			{
 				ofc_sparse_ref_error(lhs->src,
 					"Declaration used in multiple COMMON blocks");
@@ -102,11 +102,11 @@ bool ofc_sema_stmt_common(
 				return false;
 			}
 
-			if (!decl->common)
+			if (!decl->ast.common)
 			{
 				if (!ofc_sema_common_add(common, decl))
 					return false;
-				decl->common = common;
+				decl->ast.common = common;
 			}
 		}
 	}

@@ -115,10 +115,15 @@ struct ofc_sema_expr_s
 	};
 };
 
+typedef struct
+{
+	unsigned count;
+	ofc_sema_expr_t** expr;
+} ofc_sema_expr_list_ast_t;
+
 struct ofc_sema_expr_list_s
 {
-	unsigned          count;
-	ofc_sema_expr_t** expr;
+	ofc_sema_expr_list_ast_t ast;
 };
 
 ofc_sema_expr_t* ofc_sema_expr(

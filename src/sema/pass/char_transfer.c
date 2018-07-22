@@ -177,7 +177,7 @@ static bool ofc_sema_pass_char_transfer__expr(
 	if (!ofc_sema_dummy_arg_list_add(args, mold_arg))
 	{
 		/* We don't want to delete expr->cast.expr */
-		args->dummy_arg[0] = NULL;
+		args->ast.dummy_arg[0] = NULL;
 
 		if (cast != expr->cast.expr)
 		{

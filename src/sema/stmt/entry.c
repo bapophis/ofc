@@ -36,10 +36,10 @@ ofc_sema_stmt_t* ofc_sema_stmt_entry(
 		if (!s.entry.args) return NULL;
 
 		unsigned i;
-		for (i = 0; i < s.entry.args->count; i++)
+		for (i = 0; i < s.entry.args->ast.count; i++)
 		{
 			const ofc_sema_arg_t arg
-				= s.entry.args->arg[i];
+				= s.entry.args->ast.arg[i];
 			if (arg.alt_return)
 				continue;
 

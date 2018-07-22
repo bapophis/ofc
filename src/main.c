@@ -114,7 +114,7 @@ int main(int argc, const char* argv[])
 			ofc_file_list_delete(file_list);
 			return EXIT_FAILURE;
 		}
-
+		
 		if (global_opts.sema_print)
 		{
 			ofc_colstr_t* cs = ofc_colstr_create(print_opts, 72, 0);

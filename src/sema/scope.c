@@ -302,8 +302,8 @@ static bool ofc_sema_scope__body_validate(
 		{
 			const ofc_sema_decl_t* decl
 				= scope->decl->decl_ref[i];
-			if (!decl || decl->common
-				|| ofc_sparse_ref_empty(decl->name)
+			if (!decl || decl->ast.common
+				|| ofc_sparse_ref_empty(decl->ast.name)
 				|| ofc_sema_decl_is_parameter(decl)
 				|| ofc_sema_decl_is_common(decl))
 				continue;
@@ -320,28 +320,28 @@ static bool ofc_sema_scope__body_validate(
 			{
 				if (!decl->was_read)
 				{
-					ofc_sparse_ref_warning(decl->name,
+					ofc_sparse_ref_warning(decl->ast.name,
 						"Argument '%.*s' not used",
-						decl->name.string.size,
-						decl->name.string.base);
+						decl->ast.name.string.size,
+						decl->ast.name.string.base);
 				}
 			}
 			else if (decl->is_return)
 			{
 				if (!decl->was_written)
 				{
-					ofc_sparse_ref_warning(decl->name,
+					ofc_sparse_ref_warning(decl->ast.name,
 						"FUNCTION '%.*s' provides no return value",
-						decl->name.string.size,
-						decl->name.string.base);
+						decl->ast.name.string.size,
+						decl->ast.name.string.base);
 				}
 			}
 			else if (!decl->was_written && !decl->was_read)
 			{
-				ofc_sparse_ref_warning(decl->name,
+				ofc_sparse_ref_warning(decl->ast.name,
 					"Variable '%.*s' declared but not used",
-					decl->name.string.size,
-					decl->name.string.base);
+					decl->ast.name.string.size,
+					decl->ast.name.string.base);
 			}
 			else if (!decl->was_written)
 			{
@@ -351,18 +351,18 @@ static bool ofc_sema_scope__body_validate(
 				}
 				else
 				{
-					ofc_sparse_ref_warning(decl->name,
+					ofc_sparse_ref_warning(decl->ast.name,
 						"Variable '%.*s' read but never written",
-						decl->name.string.size,
-						decl->name.string.base);
+						decl->ast.name.string.size,
+						decl->ast.name.string.base);
 				}
 			}
 			else if (!decl->was_read)
 			{
-				ofc_sparse_ref_warning(decl->name,
+				ofc_sparse_ref_warning(decl->ast.name,
 					"Variable '%.*s' written but never read",
-					decl->name.string.size,
-					decl->name.string.base);
+					decl->ast.name.string.size,
+					decl->ast.name.string.base);
 			}
 		}
 	}
@@ -380,7 +380,7 @@ bool ofc_sema_scope__body_decl_finalize(
 
 	if (ofc_sema_decl_is_unknown_external(decl))
 	{
-		ofc_sparse_ref_warning(decl->name,
+		ofc_sparse_ref_warning(decl->ast.name,
 			"External symbol is not explicitly typed after IMPLICIT NONE.");
 		return true;
 	}
@@ -648,7 +648,7 @@ bool ofc_sema_scope_function(
 		return false;
 	}
 
-	if (type) rdecl->type = type;
+	if (type) rdecl->ast.type = type;
 
 	rdecl->is_return = true;
 
@@ -696,7 +696,7 @@ bool ofc_sema_scope_function(
 	}
 
 	if (!ofc_sema_decl_type_set(
-		fdecl, rdecl->type, name))
+		fdecl, rdecl->ast.type, name))
 	{
 		ofc_sparse_ref_error(stmt->src,
 			"Conflicting definitions of FUNCTION return type");
@@ -865,7 +865,7 @@ ofc_sema_scope_t* ofc_sema_scope_stmt_func(
 		rdecl = ofc_sema_scope_decl_find_create_ns(
 			func, base_name, true, NULL);
 	}
-	if (!rdecl || !rdecl->type)
+	if (!rdecl || !rdecl->ast.type)
 	{
 		ofc_sparse_ref_error(stmt->src,
 			"No IMPLICIT rule matches statement function name");
@@ -888,10 +888,10 @@ ofc_sema_scope_t* ofc_sema_scope_stmt_func(
 		}
 
 		unsigned i;
-		for (i = 0; i < func->args->count; i++)
+		for (i = 0; i < func->args->ast.count; i++)
 		{
 			ofc_sparse_ref_t arg_name
-				= func->args->arg[i].name;
+				= func->args->ast.arg[i].name;
 
 			ofc_sema_decl_t* pdecl
 				= ofc_sema_scope_decl_find_create(
@@ -930,7 +930,7 @@ ofc_sema_scope_t* ofc_sema_scope_stmt_func(
 	ofc_sema_decl_t* decl
 		= ofc_sema_scope_decl_find_create(
 			scope, base_name, true);
-	if (!decl || !decl->type)
+	if (!decl || !decl->ast.type)
 	{
 		ofc_sema_scope_delete(func);
 		return NULL;
@@ -1289,14 +1289,14 @@ ofc_sema_decl_t* ofc_sema_scope_decl_find__create(
 				case_sensitive = scope->decl->case_sensitive;
 
 			unsigned i;
-			for (i = 0; i < scope->args->count; i++)
+			for (i = 0; i < scope->args->ast.count; i++)
 			{
-				if (scope->args->arg[i].alt_return
-					|| ofc_sparse_ref_empty(scope->args->arg[i].name))
+				if (scope->args->ast.arg[i].alt_return
+					|| ofc_sparse_ref_empty(scope->args->ast.arg[i].name))
 					continue;
 
 				const ofc_str_ref_t arg_name
-					= scope->args->arg[i].name.string;
+					= scope->args->ast.arg[i].name.string;
 
 				if (case_sensitive
 					? ofc_str_ref_equal(arg_name, name.string)
@@ -1504,14 +1504,14 @@ static bool ofc_sema_scope_body__print(
 	if (scope->args)
 	{
 		unsigned i;
-		for (i = 0; i < scope->args->count; i++)
+		for (i = 0; i < scope->args->ast.count; i++)
 		{
-			if (scope->args->arg[i].alt_return
-				|| ofc_sparse_ref_empty(scope->args->arg[i].name))
+			if (scope->args->ast.arg[i].alt_return
+				|| ofc_sparse_ref_empty(scope->args->ast.arg[i].name))
 				continue;
 
 			if (!ofc_sema_decl_list_find(
-				scope->decl, scope->args->arg[i].name.string))
+				scope->decl, scope->args->ast.arg[i].name.string))
 			{
 				implicit_none = false;
 				break;
@@ -2028,14 +2028,14 @@ static bool ofc_sema_scope_common_usage_print__decl(
 		&& !decl->was_written)
 		return true;
 
-	if (!decl->common)
+	if (!decl->ast.common)
 		return true;
 
 	printf("/%.*s/%.*s\n",
-		decl->common->name.size,
-		decl->common->name.base,
-		decl->name.string.size,
-		decl->name.string.base);
+		decl->ast.common->name.size,
+		decl->ast.common->name.base,
+		decl->ast.name.string.size,
+		decl->ast.name.string.base);
 	return true;
 }
 

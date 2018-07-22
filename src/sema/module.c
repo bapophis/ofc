@@ -84,7 +84,7 @@ bool ofc_sema_module_print(
 				|| !ofc_colstr_atomic_writef(cs, "=>")
 				|| !ofc_colstr_atomic_writef(cs, " ")
 				|| !ofc_str_ref_print(cs,
-					alias->decl->name.string))
+					alias->decl->ast.name.string))
 				return false;
 		}
 	}
@@ -114,7 +114,7 @@ bool ofc_sema_module_print(
 
 			ofc_sema_decl_t* decl = only->decl[i];
 
-            if (!ofc_str_ref_print(cs, decl->name.string))
+            if (!ofc_str_ref_print(cs, decl->ast.name.string))
 				return false;
 		}
 	}

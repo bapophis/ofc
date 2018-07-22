@@ -36,12 +36,22 @@ typedef struct
 		const ofc_sema_stmt_t*  stmt;
 	};
 
-	bool used;
+} ofc_sema_label_ast_t;
+
+typedef struct
+{
+	ofc_sema_label_ast_t ast;
+	bool                 used;
 } ofc_sema_label_t;
 
 ofc_sparse_ref_t ofc_sema_label_src(
 	const ofc_sema_label_t* label);
 
+typedef struct
+{
+
+
+} ofc_sema_label_map_ast_t;
 
 typedef struct
 {

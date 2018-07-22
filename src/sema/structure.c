@@ -23,7 +23,7 @@ static const ofc_str_ref_t* ofc_structure__member_name(
 		return NULL;
 	return (member->is_structure
 		? &member->structure->name.string
-		: &member->decl->name.string);
+		: &member->decl->ast.name.string);
 }
 
 
@@ -289,7 +289,7 @@ static bool ofc_sema_structure__member_add(
 		{
 			ofc_sparse_ref_t ref = (member->is_structure
 				? member->structure->name
-				: member->decl->name);
+				: member->decl->ast.name);
 			ofc_sparse_ref_error(ref,
 				"Duplicate structure member declaration");
 			return false;

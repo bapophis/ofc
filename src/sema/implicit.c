@@ -163,10 +163,10 @@ bool ofc_sema_implicit(
 	/* Apply new implicit rule to existing arguments. */
 	if (scope->args)
 	{
-		for (i = 0; i < scope->args->count; i++)
+		for (i = 0; i < scope->args->ast.count; i++)
 		{
 			ofc_sema_arg_t arg
-				= scope->args->arg[i];
+				= scope->args->ast.arg[i];
 			if (arg.alt_return)
 				continue;
 
@@ -183,7 +183,7 @@ bool ofc_sema_implicit(
 			bool is_external  = false;
 
 			if (ofc_sema_implicit_attr(
-				implicit, arg.name, &decl->type,
+				implicit, arg.name, &decl->ast.type,
 				&is_static, &is_automatic,
 				&is_volatile, &is_intrinsic,
 				&is_external))

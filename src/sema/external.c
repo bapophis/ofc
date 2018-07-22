@@ -31,7 +31,7 @@ ofc_sema_external_list_t* ofc_sema_external_list_create(
 
 	list->case_sensitive = case_sensitive;
 	list->count    = 0;
-	list->external = NULL;
+	list->ast.external = NULL;
 
 	list->map = ofc_hashmap_create(
 		(void*)(list->case_sensitive
@@ -84,12 +84,12 @@ bool ofc_sema_external_list_add(
 		return false;
 
 	ofc_sema_external_t** nexternal
-		= (ofc_sema_external_t**)realloc(list->external,
+		= (ofc_sema_external_t**)realloc(list->ast.external,
 			(sizeof(ofc_sema_external_t*) * (list->count + 1)));
 	if (!nexternal) return false;
 
-	list->external = nexternal;
-	list->external[list->count++] = external;
+	list->ast.external = nexternal;
+	list->ast.external[list->count++] = external;
 
 	return true;
 }
@@ -104,9 +104,9 @@ void ofc_sema_external_list_delete(
 
 	unsigned i;
 	for (i = 0; i < list->count; i++)
-		ofc_sema_external_delete(list->external[i]);
+		ofc_sema_external_delete(list->ast.external[i]);
 
-	free(list->external);
+	free(list->ast.external);
 
 	free(list);
 }
@@ -261,7 +261,7 @@ bool ofc_sema_external_list_print(
 	unsigned i;
 	for (i = 0; i < list->count; i++)
 	{
-		ofc_sema_external_t* external = list->external[i];
+		ofc_sema_external_t* external = list->ast.external[i];
 
 		if (!external) continue;
 

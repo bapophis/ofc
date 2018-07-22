@@ -298,7 +298,7 @@ bool ofc_sema_stmt_select_case_print(
 		= ofc_sema_label_map_find_end_block(
 			label_map, stmt);
 	const unsigned* ulabel = NULL;
-	if (label) ulabel = &label->number;
+	if (label) ulabel = &label->ast.number;
 
 	if (!ofc_colstr_newline(cs, indent, ulabel)
 		|| !ofc_colstr_keyword_atomic_writez(cs, "END SELECT"))

@@ -40,8 +40,8 @@ ofc_sema_dummy_arg_list_t* ofc_sema_dummy_arg_list_create(void)
 			sizeof(ofc_sema_dummy_arg_list_t));
 	if (!list) return NULL;
 
-	list->count = 0;
-	list->dummy_arg  = NULL;
+	list->ast.count = 0;
+	list->ast.dummy_arg  = NULL;
 	return list;
 }
 
@@ -52,9 +52,9 @@ void ofc_sema_dummy_arg_list_delete(
 		return;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
-		ofc_sema_dummy_arg_delete(list->dummy_arg[i]);
-	free(list->dummy_arg);
+	for (i = 0; i < list->ast.count; i++)
+		ofc_sema_dummy_arg_delete(list->ast.dummy_arg[i]);
+	free(list->ast.dummy_arg);
 
 	free(list);
 }
@@ -67,12 +67,12 @@ bool ofc_sema_dummy_arg_list_add(
 		return false;
 
 	ofc_sema_dummy_arg_t** ndummy_arg
-		= (ofc_sema_dummy_arg_t**)realloc(list->dummy_arg,
-			(sizeof(ofc_sema_dummy_arg_t*) * (list->count + 1)));
+		= (ofc_sema_dummy_arg_t**)realloc(list->ast.dummy_arg,
+			(sizeof(ofc_sema_dummy_arg_t*) * (list->ast.count + 1)));
 	if (!ndummy_arg) return NULL;
 
-	list->dummy_arg = ndummy_arg;
-	list->dummy_arg[list->count++] = dummy_arg;
+	list->ast.dummy_arg = ndummy_arg;
+	list->ast.dummy_arg[list->ast.count++] = dummy_arg;
 	return true;
 }
 
@@ -408,24 +408,24 @@ ofc_sema_dummy_arg_list_t* ofc_sema_dummy_arg_list_copy_replace(
 			sizeof(ofc_sema_dummy_arg_list_t));
 	if (!copy) return NULL;
 
-	copy->dummy_arg = (ofc_sema_dummy_arg_t**)malloc(
-		(sizeof(ofc_sema_dummy_arg_t*) * list->count));
-	if (!copy->dummy_arg)
+	copy->ast.dummy_arg = (ofc_sema_dummy_arg_t**)malloc(
+		(sizeof(ofc_sema_dummy_arg_t*) * list->ast.count));
+	if (!copy->ast.dummy_arg)
 	{
 		free(copy);
 		return NULL;
 	}
 
-	copy->count = list->count;
+	copy->ast.count = list->ast.count;
 
 	bool fail = false;
 	unsigned i;
-	for (i = 0; i < copy->count; i++)
+	for (i = 0; i < copy->ast.count; i++)
 	{
-		const ofc_sema_dummy_arg_t* dummy_arg = list->dummy_arg[i];
-		copy->dummy_arg[i] = ofc_sema_dummy_arg_copy_replace(
+		const ofc_sema_dummy_arg_t* dummy_arg = list->ast.dummy_arg[i];
+		copy->ast.dummy_arg[i] = ofc_sema_dummy_arg_copy_replace(
 			dummy_arg, replace, with);
-		if (copy->dummy_arg[i] == NULL)
+		if (copy->ast.dummy_arg[i] == NULL)
 			fail = true;
 	}
 
@@ -448,14 +448,14 @@ bool ofc_sema_dummy_arg_list_compare(
 	if (a == b)
 		return true;
 
-	if (a->count != b->count)
+	if (a->ast.count != b->ast.count)
 		return false;
 
 	unsigned i;
-	for (i = 0; i < a->count; i++)
+	for (i = 0; i < a->ast.count; i++)
 	{
 		if (!ofc_sema_dummy_arg_compare(
-			a->dummy_arg[i], b->dummy_arg[i]))
+			a->ast.dummy_arg[i], b->ast.dummy_arg[i]))
 			return false;
 	}
 
@@ -493,13 +493,13 @@ bool ofc_sema_dummy_arg_list_print(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
 		if (!ofc_sema_dummy_arg_print(
-			cs, list->dummy_arg[i]))
+			cs, list->ast.dummy_arg[i]))
 			return false;
 
-		if (i < (list->count - 1)
+		if (i < (list->ast.count - 1)
 			&& !ofc_colstr_atomic_writef(cs, ", "))
 			return false;
 	}
@@ -515,13 +515,13 @@ bool ofc_sema_dummy_arg_list_foreach_expr(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
 		if (ofc_sema_dummy_arg_is_expr(
-			list->dummy_arg[i]))
+			list->ast.dummy_arg[i]))
 		{
 			if (!ofc_sema_expr_foreach(
-				list->dummy_arg[i]->expr,
+				list->ast.dummy_arg[i]->expr,
 				param, func))
 				return false;
 		}

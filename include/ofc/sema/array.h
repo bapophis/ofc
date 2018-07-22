@@ -25,9 +25,14 @@ typedef struct
 
 typedef struct
 {
-	bool                  scan;
 	unsigned              dimensions;
 	ofc_sema_array_dims_t segment[0];
+} ofc_sema_array_ast_t;
+
+typedef struct
+{
+	bool                  scan;
+	ofc_sema_array_ast_t  ast;
 } ofc_sema_array_t;
 
 ofc_sema_array_t* ofc_sema_array(
@@ -107,13 +112,17 @@ bool ofc_sema_array_index_compare(
 	const ofc_sema_array_index_t* a,
 	const ofc_sema_array_index_t* b);
 
-
 typedef struct
 {
-	bool is_index;
 	ofc_sema_expr_t* first;
 	ofc_sema_expr_t* last;
 	ofc_sema_expr_t* stride;
+} ofc_sema_array_segment_ast_t;
+
+typedef struct
+{
+	bool                         is_index;
+	ofc_sema_array_segment_ast_t ast;
 } ofc_sema_array_segment_t;
 
 typedef struct

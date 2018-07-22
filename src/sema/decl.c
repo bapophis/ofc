@@ -46,13 +46,13 @@ ofc_sema_decl_t* ofc_sema_decl_create(
 			sizeof(ofc_sema_decl_t));
 	if (!decl) return NULL;
 
-	decl->name = name;
+	decl->ast.name = name;
 
-	decl->type = NULL;
+	decl->ast.type = NULL;
 	decl->type_implicit = true;
 	decl->type_final    = false;
 
-	decl->access = OFC_SEMA_ACCESSIBILITY_DEFAULT;
+	decl->ast.access = OFC_SEMA_ACCESSIBILITY_DEFAULT;
 
 	decl->is_static    = false;
 	decl->is_automatic = false;
@@ -64,7 +64,7 @@ ofc_sema_decl_t* ofc_sema_decl_create(
 	{
 		if (!ofc_sema_implicit_attr(
 			implicit, name,
-			&decl->type,
+			&decl->ast.type,
 			&decl->is_static,
 			&decl->is_automatic,
 			&decl->is_volatile,
@@ -76,20 +76,20 @@ ofc_sema_decl_t* ofc_sema_decl_create(
 		}
 	}
 
-	decl->func      = NULL;
-	decl->array     = NULL;
-	decl->structure = NULL;
-	decl->common    = NULL;
-	decl->intrinsic = NULL;
+	decl->ast.func      = NULL;
+	decl->ast.array     = NULL;
+	decl->ast.structure = NULL;
+	decl->ast.common    = NULL;
+	decl->ast.intrinsic = NULL;
 
 	if (ofc_sema_decl_is_composite(decl))
 	{
-		decl->init_array = NULL;
+		decl->ast.init_array = NULL;
 	}
 	else
 	{
-		decl->init.is_substring = false;
-		decl->init.expr = NULL;
+		decl->ast.init.is_substring = false;
+		decl->ast.init.expr = NULL;
 	}
 
 	decl->is_parameter = false;
@@ -111,13 +111,13 @@ ofc_sema_decl_t* ofc_sema_decl_create(
 bool ofc_sema_decl_type_finalize(
 	ofc_sema_decl_t* decl)
 {
-	if (!decl || !decl->type)
+	if (!decl || !decl->ast.type)
 		return false;
 
-	const ofc_sema_type_t* ktype = decl->type;
-	if (decl->type->kind == OFC_SEMA_KIND_NONE)
+	const ofc_sema_type_t* ktype = decl->ast.type;
+	if (decl->ast.type->kind == OFC_SEMA_KIND_NONE)
 	{
-		switch (decl->type->type)
+		switch (decl->ast.type->type)
 		{
 			case OFC_SEMA_TYPE_LOGICAL:
 			case OFC_SEMA_TYPE_INTEGER:
@@ -126,7 +126,7 @@ bool ofc_sema_decl_type_finalize(
 			case OFC_SEMA_TYPE_BYTE:
 			case OFC_SEMA_TYPE_CHARACTER:
 				ktype = ofc_sema_type_set_kind(
-					decl->type, OFC_SEMA_KIND_DEFAULT);
+					decl->ast.type, OFC_SEMA_KIND_DEFAULT);
 				if (!ktype) return false;
 				break;
 
@@ -154,7 +154,7 @@ bool ofc_sema_decl_type_finalize(
 		if (!ltype) return false;
 	}
 
-	decl->type = ltype;
+	decl->ast.type = ltype;
 	decl->type_implicit = false;
 	decl->type_final    = true;
 	return true;
@@ -180,10 +180,10 @@ bool ofc_sema_decl_function(
 		return true;
 
 	const ofc_sema_type_t* ftype
-		= ofc_sema_type_create_function(decl->type);
+		= ofc_sema_type_create_function(decl->ast.type);
 	if (!ftype) return false;
 
-	decl->type = ftype;
+	decl->ast.type = ftype;
 	return true;
 }
 
@@ -193,11 +193,11 @@ bool ofc_sema_decl_subroutine(
 	if (!decl)
 		return false;
 
-	if (decl->type && !decl->type_implicit)
+	if (decl->ast.type && !decl->type_implicit)
 		return false;
 
-	decl->type = ofc_sema_type_subroutine();
-	if (!decl->type) return false;
+	decl->ast.type = ofc_sema_type_subroutine();
+	if (!decl->ast.type) return false;
 
 	decl->type_implicit = false;
 	return true;
@@ -211,22 +211,22 @@ bool ofc_sema_decl_type_set(
 	if (!decl || !type)
 		return false;
 
-	if (!decl->type
+	if (!decl->ast.type
 		|| decl->type_implicit)
 	{
-		decl->type = type;
+		decl->ast.type = type;
 		decl->type_implicit = false;
 		return true;
 	}
 
-	if (decl->type->type != type->type)
+	if (decl->ast.type->type != type->type)
 	{
 		ofc_sparse_ref_error(err_pos,
 			"Redefining typed declaration as a different type");
 		return false;
 	}
 
-	const ofc_sema_type_t* dtype = decl->type;
+	const ofc_sema_type_t* dtype = decl->ast.type;
 
 	if ((dtype->kind != type->kind)
 		&& (type->kind != OFC_SEMA_KIND_NONE))
@@ -270,7 +270,7 @@ bool ofc_sema_decl_type_set(
 		if (!dtype) return false;
 	}
 
-	decl->type = dtype;
+	decl->ast.type = dtype;
 	decl->type_implicit = false;
 	return true;
 }
@@ -283,10 +283,10 @@ bool ofc_sema_decl_array_set(
 	if (!decl || !array)
 		return false;
 
-	if (decl->array)
+	if (decl->ast.array)
 	{
 		if (!ofc_sema_array_compare(
-			decl->array, array))
+			decl->ast.array, array))
 		{
 			ofc_sparse_ref_error(err_pos,
 				"Conflicting array dimensions specified");
@@ -306,7 +306,7 @@ bool ofc_sema_decl_array_set(
 		return false;
 	}
 
-	decl->array = array;
+	decl->ast.array = array;
 	return true;
 }
 
@@ -563,9 +563,9 @@ static bool ofc_sema_decl__elem(
 				"Referencing Fortran 90 TYPE in VAX RECORD statement");
 		}
 
-		if (decl->structure)
+		if (decl->ast.structure)
 		{
-			if (decl->structure != rstruct)
+			if (decl->ast.structure != rstruct)
 			{
 				ofc_sparse_ref_error(pdecl->record,
 					"Redefining declaration as RECORD of a different type");
@@ -583,13 +583,13 @@ static bool ofc_sema_decl__elem(
 				return false;
 			}
 
-			decl->structure = rstruct;
+			decl->ast.structure = rstruct;
 			if (type_struct)
 				*type_struct = rstruct;
 		}
 
-		decl->type = ofc_sema_type_type();
-		if (!decl->type)
+		decl->ast.type = ofc_sema_type_type();
+		if (!decl->ast.type)
 		{
 			ofc_sema_array_delete(array);
 			return false;
@@ -601,9 +601,9 @@ static bool ofc_sema_decl__elem(
 		if (!ofc_sema_structure_reference(*type_struct))
 			return false;
 
-		decl->structure = *type_struct;
-		decl->type = ofc_sema_type_type();
-		if (!decl->type)
+		decl->ast.structure = *type_struct;
+		decl->ast.type = ofc_sema_type_type();
+		if (!decl->ast.type)
 		{
 			ofc_sema_array_delete(array);
 			return false;
@@ -657,25 +657,25 @@ static bool ofc_sema_decl__elem(
 			return false;
 		}
 
-		if (decl->array)
+		if (decl->ast.array)
 		{
 			if (!ofc_sema_array_compare(
-				decl->array, array))
+				decl->ast.array, array))
 			{
 				ofc_sparse_ref_error(lhs->src,
 					"Multiple incompatible definitions of array dimensions");
 				ofc_sema_array_delete(array);
 				return false;
 			}
-			if (!decl->array->scan)
+			if (!decl->ast.array->scan)
 			{
 				ofc_sparse_ref_warning(lhs->src,
 					"Redefinition of array dimensions");
 			}
-			ofc_sema_array_delete(decl->array);
+			ofc_sema_array_delete(decl->ast.array);
 		}
 
-		decl->array = array;
+		decl->ast.array = array;
 	}
 
 	if (!type_scan)
@@ -705,8 +705,8 @@ static bool ofc_sema_decl__elem(
 			if (!init_clist) return false;
 
 			bool initialized = ofc_sema_decl_init_array(
-				decl, NULL, init_clist->count,
-				(const ofc_sema_expr_t**)init_clist->expr);
+				decl, NULL, init_clist->ast.count,
+				(const ofc_sema_expr_t**)init_clist->ast.expr);
 			ofc_sema_expr_list_delete(init_clist);
 			if (!initialized) return false;
 		}
@@ -717,13 +717,13 @@ static bool ofc_sema_decl__elem(
 	if (is_parameter)
 		decl->is_parameter = true;
 	if (is_public)
-		decl->access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
+		decl->ast.access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
 	if (is_private)
-		decl->access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
+		decl->ast.access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
 
 	if (is_public && is_private)
 	{
-		ofc_sparse_ref_error(decl->name,
+		ofc_sparse_ref_error(decl->ast.name,
 			"Declaration can't be both PUBLIC and PRIVATE");
 		return false;
 	}
@@ -731,7 +731,7 @@ static bool ofc_sema_decl__elem(
 	if ((is_public || is_private)
 		&& (scope->type != OFC_SEMA_SCOPE_MODULE))
 	{
-		ofc_sparse_ref_error(decl->name,
+		ofc_sparse_ref_error(decl->ast.name,
 			"%s declaration only allowed in MODULE",
 			(is_public ? "PUBLIC" : "PRIVATE"));
 		return false;
@@ -847,50 +847,50 @@ ofc_sema_decl_t* ofc_sema_decl_copy(
 		return false;
 	}
 
-	if (decl->func != NULL)
+	if (decl->ast.func != NULL)
 	{
 		/* TODO - Support copying decl's with scopes. */
 		return false;
 	}
 
 	ofc_sema_decl_t* copy
-		= ofc_sema_decl_create(NULL, decl->name);
+		= ofc_sema_decl_create(NULL, decl->ast.name);
 	if (!copy) return NULL;
 
 	memcpy(copy, decl, sizeof(ofc_sema_decl_t));
 	copy->refcnt = 0;
 
-	copy->array     = NULL;
-	copy->structure = NULL;
-	copy->func      = NULL;
-	copy->common    = NULL;
-	copy->intrinsic = NULL;
+	copy->ast.array     = NULL;
+	copy->ast.structure = NULL;
+	copy->ast.func      = NULL;
+	copy->ast.common    = NULL;
+	copy->ast.intrinsic = NULL;
 
-	if (decl->array)
+	if (decl->ast.array)
 	{
-		copy->array = ofc_sema_array_copy(decl->array);
-		if (!copy->array)
+		copy->ast.array = ofc_sema_array_copy(decl->ast.array);
+		if (!copy->ast.array)
 		{
 			ofc_sema_decl_delete(copy);
 			return NULL;
 		}
 	}
 
-	if (decl->structure)
+	if (decl->ast.structure)
 	{
 		if (!ofc_sema_structure_reference(
-			decl->structure))
+			decl->ast.structure))
 		{
 			ofc_sema_decl_delete(copy);
 			return NULL;
 		}
-		copy->structure = decl->structure;
+		copy->ast.structure = decl->ast.structure;
 	}
 
 	if (decl->is_intrinsic)
 	{
 		copy->is_intrinsic = true;
-		copy->intrinsic = decl->intrinsic;
+		copy->ast.intrinsic = decl->ast.intrinsic;
 	}
 
 	return copy;
@@ -923,26 +923,26 @@ void ofc_sema_decl_delete(
 
 	if (ofc_sema_decl_is_composite(decl))
 	{
-		if (decl->init_array)
+		if (decl->ast.init_array)
 		{
 			unsigned count = 0;
 			ofc_sema_decl_elem_count(decl, &count);
 
 			unsigned i;
 			for (i = 0; i < count; i++)
-				ofc_sema_decl_init__delete(decl->init_array[i]);
+				ofc_sema_decl_init__delete(decl->ast.init_array[i]);
 
-			free(decl->init_array);
+			free(decl->ast.init_array);
 		}
 	}
 	else
 	{
-		ofc_sema_decl_init__delete(decl->init);
+		ofc_sema_decl_init__delete(decl->ast.init);
 	}
 
-	ofc_sema_array_delete(decl->array);
-	ofc_sema_structure_delete(decl->structure);
-	ofc_sema_scope_delete(decl->func);
+	ofc_sema_array_delete(decl->ast.array);
+	ofc_sema_structure_delete(decl->ast.structure);
+	ofc_sema_scope_delete(decl->ast.func);
 	free(decl);
 }
 
@@ -1045,7 +1045,7 @@ bool ofc_sema_decl_init(
 	ofc_sema_decl_t* decl,
 	const ofc_sema_expr_t* init)
 {
-	if (!decl || !init || !decl->type
+	if (!decl || !init || !decl->ast.type
 		|| ofc_sema_decl_is_procedure(decl))
 		return false;
 
@@ -1064,15 +1064,15 @@ bool ofc_sema_decl_init(
 	{
 		if (!init->array) return true;
 		return ofc_sema_decl_init_array(
-			decl, NULL, init->array->count,
-			(const ofc_sema_expr_t**)init->array->expr);
+			decl, NULL, init->array->ast.count,
+			(const ofc_sema_expr_t**)init->array->ast.expr);
 	}
 	else if (init->type == OFC_SEMA_EXPR_RESHAPE)
 	{
 		if (!init->reshape.source) return true;
 		return ofc_sema_decl_init_array(
-			decl, NULL, init->reshape.source->count,
-			(const ofc_sema_expr_t**)init->reshape.source->expr);
+			decl, NULL, init->reshape.source->ast.count,
+			(const ofc_sema_expr_t**)init->reshape.source->ast.expr);
 	}
 
 	if (!ofc_sema_expr_is_constant(init))
@@ -1090,13 +1090,13 @@ bool ofc_sema_decl_init(
 		return false;
 	}
 
-	if (decl->init.is_substring)
+	if (decl->ast.init.is_substring)
 	{
 		return ofc_sema_decl_init_substring(
 			decl, init, NULL, NULL);
 	}
 
-	const ofc_sema_type_t* type = decl->type;
+	const ofc_sema_type_t* type = decl->ast.type;
 	if (decl->is_parameter
 		&& (type->type == OFC_SEMA_TYPE_CHARACTER)
 		&& type->len_var)
@@ -1143,17 +1143,17 @@ bool ofc_sema_decl_init(
 		expr = cast;
 	}
 
-	if (decl->init.is_substring)
+	if (decl->ast.init.is_substring)
 	{
 		ofc_sparse_ref_error(init->src,
 			"Conflicting initializaters");
 		ofc_sema_expr_delete(expr);
 		return false;
 	}
-	else if (decl->init.expr)
+	else if (decl->ast.init.expr)
 	{
 		bool redecl = ofc_sema_expr_compare(
-			expr, decl->init.expr);
+			expr, decl->ast.init.expr);
 		ofc_sema_expr_delete(expr);
 
 		if (redecl)
@@ -1170,8 +1170,8 @@ bool ofc_sema_decl_init(
 	}
 	else
 	{
-		decl->type = type;
-		decl->init.expr = expr;
+		decl->ast.type = type;
+		decl->ast.init.expr = expr;
 	}
 
 	return true;
@@ -1182,7 +1182,7 @@ bool ofc_sema_decl_init_offset(
 	unsigned offset,
 	const ofc_sema_expr_t* init)
 {
-	if (!decl || !init || !decl->type
+	if (!decl || !init || !decl->ast.type
 		|| ofc_sema_decl_is_procedure(decl)
 		|| !ofc_sema_decl_type_finalize(decl))
 		return false;
@@ -1198,7 +1198,7 @@ bool ofc_sema_decl_init_offset(
 	if (!ofc_sema_decl_type_finalize(decl))
 		return false;
 
-	if (!decl->type)
+	if (!decl->ast.type)
 		return false;
 
 	if (!ofc_sema_decl_is_composite(decl))
@@ -1225,17 +1225,17 @@ bool ofc_sema_decl_init_offset(
 		return false;
 	}
 
-	if (!decl->init_array)
+	if (!decl->ast.init_array)
 	{
-		decl->init_array = (ofc_sema_decl_init_t*)malloc(
+		decl->ast.init_array = (ofc_sema_decl_init_t*)malloc(
 			sizeof(ofc_sema_decl_init_t) * elem_count);
-		if (!decl->init_array) return false;
+		if (!decl->ast.init_array) return false;
 
 		unsigned i;
 		for (i = 0; i < elem_count; i++)
 		{
-			decl->init_array[i].is_substring = false;
-			decl->init_array[i].expr = NULL;
+			decl->ast.init_array[i].is_substring = false;
+			decl->ast.init_array[i].expr = NULL;
 		}
 	}
 
@@ -1250,15 +1250,15 @@ bool ofc_sema_decl_init_offset(
 		= ofc_sema_expr_copy(init);
 	if (!expr) return false;
 
-	const ofc_sema_type_t* dtype = decl->type;
-	if (decl->structure)
+	const ofc_sema_type_t* dtype = decl->ast.type;
+	if (decl->ast.structure)
 	{
 		unsigned moffset = offset;
-		if (decl->array)
+		if (decl->ast.array)
 		{
 			unsigned mcount;
 			if (!ofc_sema_structure_elem_count(
-				decl->structure, &mcount)
+				decl->ast.structure, &mcount)
 				|| (mcount == 0))
 				return false;
 			moffset %= mcount;
@@ -1266,9 +1266,9 @@ bool ofc_sema_decl_init_offset(
 
 		ofc_sema_decl_t* mdecl
 			= ofc_sema_structure_elem_get(
-				decl->structure, moffset);
+				decl->ast.structure, moffset);
 		if (!mdecl) return false;
-		dtype = mdecl->type;
+		dtype = mdecl->ast.type;
 	}
 
 	if (!ofc_sema_type_compatible(
@@ -1287,17 +1287,17 @@ bool ofc_sema_decl_init_offset(
 		expr = cast;
 	}
 
-	if (decl->init_array[offset].is_substring)
+	if (decl->ast.init_array[offset].is_substring)
 	{
 		ofc_sparse_ref_error(init->src,
 			"Conflicting initializer types for array element");
 		ofc_sema_expr_delete(expr);
 		return false;
 	}
-	else if (decl->init_array[offset].expr)
+	else if (decl->ast.init_array[offset].expr)
 	{
 		bool equal = ofc_sema_expr_compare(
-			decl->init_array[offset].expr, expr);
+			decl->ast.init_array[offset].expr, expr);
 		ofc_sema_expr_delete(expr);
 
 		if (!equal)
@@ -1313,7 +1313,7 @@ bool ofc_sema_decl_init_offset(
 	}
 	else
 	{
-		decl->init_array[offset].expr = expr;
+		decl->ast.init_array[offset].expr = expr;
 	}
 
 	return true;
@@ -1344,7 +1344,7 @@ bool ofc_sema_decl_init_array(
 	if (!ofc_sema_decl_type_finalize(decl))
 		return false;
 
-	if (!decl->type)
+	if (!decl->ast.type)
 		return false;
 
 	if (!ofc_sema_decl_is_array(decl))
@@ -1355,7 +1355,7 @@ bool ofc_sema_decl_init_array(
 		return false;
 	}
 
-	if (decl->init_array)
+	if (decl->ast.init_array)
 	{
 		ofc_sparse_ref_warning(init[0]->src,
 			"Initializing arrays in multiple statements.");
@@ -1371,17 +1371,17 @@ bool ofc_sema_decl_init_array(
 	}
 	if (elem_count == 0) return true;
 
-	if (!decl->init_array)
+	if (!decl->ast.init_array)
 	{
-		decl->init_array = (ofc_sema_decl_init_t*)malloc(
+		decl->ast.init_array = (ofc_sema_decl_init_t*)malloc(
 			sizeof(ofc_sema_decl_init_t) * elem_count);
-		if (!decl->init_array) return false;
+		if (!decl->ast.init_array) return false;
 
 		unsigned i;
 		for (i = 0; i < elem_count; i++)
 		{
-			decl->init_array[i].is_substring = false;
-			decl->init_array[i].expr = NULL;
+			decl->ast.init_array[i].is_substring = false;
+			decl->ast.init_array[i].expr = NULL;
 		}
 	}
 
@@ -1409,11 +1409,11 @@ bool ofc_sema_decl_init_array(
 			if (!expr) return false;
 
 			if (!ofc_sema_type_compatible(
-				ofc_sema_expr_type(expr), decl->type))
+				ofc_sema_expr_type(expr), decl->ast.type))
 			{
 				ofc_sema_expr_t* cast
 					= ofc_sema_expr_cast(
-						expr, decl->type);
+						expr, decl->ast.type);
 				if (!cast)
 				{
 					ofc_sparse_ref_error(init[i]->src,
@@ -1424,17 +1424,17 @@ bool ofc_sema_decl_init_array(
 				expr = cast;
 			}
 
-			if (decl->init_array[i].is_substring)
+			if (decl->ast.init_array[i].is_substring)
 			{
 				ofc_sparse_ref_error(init[i]->src,
 					"Conflicting initializer types for array element");
 				ofc_sema_expr_delete(expr);
 				return false;
 			}
-			if (decl->init_array[i].expr)
+			if (decl->ast.init_array[i].expr)
 			{
 				bool equal = ofc_sema_expr_compare(
-					decl->init_array[i].expr, expr);
+					decl->ast.init_array[i].expr, expr);
 				ofc_sema_expr_delete(expr);
 
 				if (!equal)
@@ -1450,7 +1450,7 @@ bool ofc_sema_decl_init_array(
 			}
 			else
 			{
-				decl->init_array[i].expr = expr;
+				decl->ast.init_array[i].expr = expr;
 			}
 		}
 	}
@@ -1484,8 +1484,8 @@ bool ofc_sema_decl_init_substring(
 
 	const ofc_sema_type_t* type
 		= ofc_sema_decl_type(decl);
-	if (!decl->init.is_substring
-		&& (decl->init.expr != NULL))
+	if (!decl->ast.init.is_substring
+		&& (decl->ast.init.expr != NULL))
 	{
 		/* TODO - Check if substring initializer is the same as
 		          existing initializer contents and just warn. */
@@ -1531,7 +1531,7 @@ bool ofc_sema_decl_init_substring(
 		return false;
 	}
 
-	if (!decl->init.is_substring
+	if (!decl->ast.init.is_substring
 		&& (ufirst == 1)
 		&& (ulast == type->len))
 		return ofc_sema_decl_init(decl, init);
@@ -1612,7 +1612,7 @@ bool ofc_sema_decl_init_substring(
 		return false;
 	}
 
-	if (!decl->init.is_substring)
+	if (!decl->ast.init.is_substring)
 	{
 		char* string = (char*)malloc(tsize);
 		if (!string)
@@ -1634,9 +1634,9 @@ bool ofc_sema_decl_init_substring(
 		for (i = 0; i < type->len; i++)
 			mask[i] = false;
 
-		decl->init.is_substring     = true;
-		decl->init.substring.string = string;
-		decl->init.substring.mask   = mask;
+		decl->ast.init.is_substring     = true;
+		decl->ast.init.substring.string = string;
+		decl->ast.init.substring.mask   = mask;
 	}
 
 	unsigned tcsize = tsize;
@@ -1646,9 +1646,9 @@ bool ofc_sema_decl_init_substring(
 	unsigned i, j;
 	for (i = offset, j = 0; j < len; i++, j++)
 	{
-		if (decl->init.substring.mask[i])
+		if (decl->ast.init.substring.mask[i])
 		{
-			if (memcmp(&decl->init.substring.string[i * tcsize],
+			if (memcmp(&decl->ast.init.substring.string[i * tcsize],
 				&ctv->character[j * tcsize], tcsize) != 0)
 			{
 				ofc_sparse_ref_error(init->src,
@@ -1662,9 +1662,9 @@ bool ofc_sema_decl_init_substring(
 		}
 		else
 		{
-			memcpy(&decl->init.substring.string[i * tcsize],
+			memcpy(&decl->ast.init.substring.string[i * tcsize],
 				&ctv->character[j * tcsize], tcsize);
-			decl->init.substring.mask[i] = true;
+			decl->ast.init.substring.mask[i] = true;
 		}
 	}
 
@@ -1702,7 +1702,7 @@ bool ofc_sema_decl_init_substring_offset(
 	if (!ofc_sema_decl_type_finalize(decl))
 		return false;
 
-	if (!decl->type)
+	if (!decl->ast.type)
 		return false;
 
 	if (!ofc_sema_decl_is_composite(decl))
@@ -1736,21 +1736,21 @@ bool ofc_sema_decl_init_substring_offset(
 		return false;
 	}
 
-	if (!decl->init_array)
+	if (!decl->ast.init_array)
 	{
-		decl->init_array = (ofc_sema_decl_init_t*)malloc(
+		decl->ast.init_array = (ofc_sema_decl_init_t*)malloc(
 			sizeof(ofc_sema_decl_init_t) * elem_count);
-		if (!decl->init_array) return false;
+		if (!decl->ast.init_array) return false;
 
 		unsigned i;
 		for (i = 0; i < elem_count; i++)
 		{
-			decl->init_array[i].is_substring = false;
-			decl->init_array[i].expr = NULL;
+			decl->ast.init_array[i].is_substring = false;
+			decl->ast.init_array[i].expr = NULL;
 		}
 	}
-	else if (!decl->init_array[offset].is_substring
-		&& (decl->init_array[offset].expr != NULL))
+	else if (!decl->ast.init_array[offset].is_substring
+		&& (decl->ast.init_array[offset].expr != NULL))
 	{
 		/* TODO - Check if substring initializer is the same as
 		          existing initializer contents and just warn. */
@@ -1792,7 +1792,7 @@ bool ofc_sema_decl_init_substring_offset(
 		return false;
 	}
 
-	if (!decl->init.is_substring
+	if (!decl->ast.init.is_substring
 		&& (ufirst == 1)
 		&& (ulast == type->len))
 		return ofc_sema_decl_init_offset(decl, offset, init);
@@ -1873,7 +1873,7 @@ bool ofc_sema_decl_init_substring_offset(
 		return false;
 	}
 
-	if (!decl->init_array[offset].is_substring)
+	if (!decl->ast.init_array[offset].is_substring)
 	{
 		char* string = (char*)malloc(tsize);
 		if (!string)
@@ -1895,9 +1895,9 @@ bool ofc_sema_decl_init_substring_offset(
 		for (i = 0; i < type->len; i++)
 			mask[i] = false;
 
-		decl->init_array[offset].is_substring     = true;
-		decl->init_array[offset].substring.string = string;
-		decl->init_array[offset].substring.mask   = mask;
+		decl->ast.init_array[offset].is_substring     = true;
+		decl->ast.init_array[offset].substring.string = string;
+		decl->ast.init_array[offset].substring.mask   = mask;
 	}
 
 	unsigned tcsize = tsize;
@@ -1907,9 +1907,9 @@ bool ofc_sema_decl_init_substring_offset(
 	unsigned i, j;
 	for (i = ss_offset, j = 0; j < len; i++, j++)
 	{
-		if (decl->init_array[offset].substring.mask[i])
+		if (decl->ast.init_array[offset].substring.mask[i])
 		{
-			if (memcmp(&decl->init_array[offset].substring.string[i * tcsize],
+			if (memcmp(&decl->ast.init_array[offset].substring.string[i * tcsize],
 				&ctv->character[j * tcsize], tcsize) != 0)
 			{
 				ofc_sparse_ref_error(init->src,
@@ -1923,9 +1923,9 @@ bool ofc_sema_decl_init_substring_offset(
 		}
 		else
 		{
-			memcpy(&decl->init_array[offset].substring.string[i * tcsize],
+			memcpy(&decl->ast.init_array[offset].substring.string[i * tcsize],
 				&ctv->character[j * tcsize], tcsize);
-			decl->init_array[offset].substring.mask[i] = true;
+			decl->ast.init_array[offset].substring.mask[i] = true;
 		}
 	}
 
@@ -1948,10 +1948,10 @@ bool ofc_sema_decl_init_func(
 	if (!ofc_sema_decl_is_procedure(decl))
 		return false;
 
-	if (decl->func)
-		return (decl->func == func);
+	if (decl->ast.func)
+		return (decl->ast.func == func);
 
-	decl->func = func;
+	decl->ast.func = func;
 	return true;
 }
 
@@ -1963,13 +1963,13 @@ bool ofc_sema_decl_size(
 	if (!decl) return false;
 
 	unsigned acount = 1;
-	if (decl->array && !ofc_sema_array_total(
-		decl->array, &acount))
+	if (decl->ast.array && !ofc_sema_array_total(
+		decl->ast.array, &acount))
 		return false;
 
 	unsigned esize;
 	if (!ofc_sema_type_size(
-		decl->type, &esize))
+		decl->ast.type, &esize))
 		return false;
 
 	if (size) *size = (acount * esize);
@@ -1983,13 +1983,13 @@ bool ofc_sema_decl_elem_count(
 	if (!decl) return false;
 
 	unsigned acount = 1;
-	if (decl->array && !ofc_sema_array_total(
-		decl->array, &acount))
+	if (decl->ast.array && !ofc_sema_array_total(
+		decl->ast.array, &acount))
 		return false;
 
 	unsigned scount = 1;
-	if (decl->structure && !ofc_sema_structure_elem_count(
-		decl->structure, &scount))
+	if (decl->ast.structure && !ofc_sema_structure_elem_count(
+		decl->ast.structure, &scount))
 		return false;
 
 	if (count) *count = (acount * scount);
@@ -1999,13 +1999,13 @@ bool ofc_sema_decl_elem_count(
 bool ofc_sema_decl_is_array(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl && decl->array);
+	return (decl && decl->ast.array);
 }
 
 bool ofc_sema_decl_is_structure(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl && decl->structure);
+	return (decl && decl->ast.structure);
 }
 
 bool ofc_sema_decl_is_composite(
@@ -2027,19 +2027,19 @@ bool ofc_sema_decl_is_external(
 bool ofc_sema_decl_is_unknown_external(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl && decl->is_external && !decl->type);
+	return (decl && decl->is_external && !decl->ast.type);
 }
 
 bool ofc_sema_decl_is_subroutine(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl && ofc_sema_type_is_subroutine(decl->type));
+	return (decl && ofc_sema_type_is_subroutine(decl->ast.type));
 }
 
 bool ofc_sema_decl_is_function(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl && ofc_sema_type_is_function(decl->type));
+	return (decl && ofc_sema_type_is_function(decl->ast.type));
 }
 
 bool ofc_sema_decl_is_procedure(
@@ -2052,9 +2052,9 @@ bool ofc_sema_decl_is_procedure(
 bool ofc_sema_decl_is_stmt_func(
 	const ofc_sema_decl_t* decl)
 {
-	if (!decl || !decl->func)
+	if (!decl || !decl->ast.func)
 		return false;
-	return (decl->func->type
+	return (decl->ast.func->type
 		== OFC_SEMA_SCOPE_STMT_FUNC);
 }
 
@@ -2070,7 +2070,7 @@ bool ofc_sema_decl_is_common(
 	const ofc_sema_decl_t* decl)
 {
 	if (!decl) return false;
-	return (decl->common != NULL);
+	return (decl->ast.common != NULL);
 }
 
 bool ofc_sema_decl_is_intrinsic(
@@ -2131,7 +2131,7 @@ bool ofc_sema_decl_has_initializer(
 
 	if (ofc_sema_decl_is_composite(decl))
 	{
-		if (!decl->init_array)
+		if (!decl->ast.init_array)
 			return false;
 
 		unsigned count;
@@ -2145,7 +2145,7 @@ bool ofc_sema_decl_has_initializer(
 		{
 			bool elem_complete;
 			if (ofc_sema_decl_init__used(
-				decl->init_array[i], decl->type,
+				decl->ast.init_array[i], decl->ast.type,
 				&elem_complete))
 			{
 				if (!elem_complete)
@@ -2163,7 +2163,7 @@ bool ofc_sema_decl_has_initializer(
 	}
 
 	return ofc_sema_decl_init__used(
-		decl->init, decl->type, complete);
+		decl->ast.init, decl->ast.type, complete);
 }
 
 bool ofc_sema_decl_is_initialized(
@@ -2179,7 +2179,7 @@ bool ofc_sema_decl_is_initialized(
 		return true;
 	}
 
-	if (!decl->structure)
+	if (!decl->ast.structure)
 		return false;
 
 	unsigned count;
@@ -2189,16 +2189,16 @@ bool ofc_sema_decl_is_initialized(
 
 	unsigned modulo;
 	if (!ofc_sema_structure_elem_count(
-		decl->structure, &modulo))
+		decl->ast.structure, &modulo))
 		return false;
 
 	unsigned i, s;
 	for (i = 0, s = 0; i < count; i++)
 	{
 		bool elem_complete = false;
-		if (decl->init_array
+		if (decl->ast.init_array
 			&& ofc_sema_decl_init__used(
-				decl->init_array[i], decl->type,
+				decl->ast.init_array[i], decl->ast.type,
 				&elem_complete))
 		{
 			if (elem_complete)
@@ -2209,7 +2209,7 @@ bool ofc_sema_decl_is_initialized(
 		{
 			ofc_sema_decl_t* member
 				= ofc_sema_structure_elem_get(
-					decl->structure, (count % modulo));
+					decl->ast.structure, (count % modulo));
 			bool dc;
 			if (ofc_sema_decl_is_initialized(
 				member, &dc) && dc)
@@ -2229,7 +2229,7 @@ bool ofc_sema_decl_is_initialized(
 const ofc_sema_type_t* ofc_sema_decl_type(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl ? decl->type : NULL);
+	return (decl ? decl->ast.type : NULL);
 }
 
 const ofc_sema_type_t* ofc_sema_decl_base_type(
@@ -2247,13 +2247,13 @@ bool ofc_sema_decl_foreach_expr(
 	if (!decl || !func)
 		return false;
 
-	if (decl->array && !ofc_sema_array_foreach_expr(
-		decl->array, param, func))
+	if (decl->ast.array && !ofc_sema_array_foreach_expr(
+		decl->ast.array, param, func))
 		return false;
 
 	if (ofc_sema_decl_is_composite(decl))
 	{
-		if (decl->init_array)
+		if (decl->ast.init_array)
 		{
 			unsigned count;
 			if (!ofc_sema_decl_elem_count(
@@ -2263,19 +2263,19 @@ bool ofc_sema_decl_foreach_expr(
 			unsigned i;
 			for (i = 0; i < count; i++)
 			{
-				if (decl->init_array[i].is_substring
-					|| !decl->init_array[i].expr)
+				if (decl->ast.init_array[i].is_substring
+					|| !decl->ast.init_array[i].expr)
 					continue;
 
-				if (!func(decl->init_array[i].expr, param))
+				if (!func(decl->ast.init_array[i].expr, param))
 					return false;
 			}
 		}
 	}
 	else
 	{
-		if (!decl->init.is_substring && decl->init.expr
-			&& !func(decl->init.expr, param))
+		if (!decl->ast.init.is_substring && decl->ast.init.expr
+			&& !func(decl->ast.init.expr, param))
 			return false;
 	}
 
@@ -2289,8 +2289,8 @@ bool ofc_sema_decl_foreach_scope(
 	if (!decl || !func)
 		return false;
 
-	if (decl->func && !ofc_sema_scope_foreach_scope(
-		decl->func, param, func))
+	if (decl->ast.func && !ofc_sema_scope_foreach_scope(
+		decl->ast.func, param, func))
 		return false;
 
 	return true;
@@ -2300,7 +2300,7 @@ bool ofc_sema_decl_foreach_scope(
 static const ofc_str_ref_t* ofc_sema_decl__key(
 	const ofc_sema_decl_t* decl)
 {
-	return (decl ? &decl->name.string : NULL);
+	return (decl ? &decl->ast.name.string : NULL);
 }
 
 bool ofc_sema_decl_list__remap(
@@ -2391,7 +2391,7 @@ bool ofc_sema_decl_list_add(
 
 	/* Check for duplicate definitions. */
 	if (ofc_sema_decl_list_find(
-		list, decl->name.string))
+		list, decl->ast.name.string))
 		return false;
 
 	unsigned slot;
@@ -2444,7 +2444,7 @@ bool ofc_sema_decl_list_add_ref(
 
 	/* Check for duplicate definitions. */
 	if (ofc_sema_decl_list_find(
-		list, decl->name.string))
+		list, decl->ast.name.string))
 		return false;
 
 	const ofc_sema_decl_t** ndecl
@@ -2493,8 +2493,8 @@ void ofc_sema_decl_list_remove(
 	for (i = 0; i < list->size; i++)
 	{
 		if (list->decl[i] && ofc_str_ref_equal(
-			list->decl[i]->name.string,
-			decl->name.string))
+			list->decl[i]->ast.name.string,
+			decl->ast.name.string))
 		{
 			list->decl[i] = NULL;
 			list->count--;
@@ -2515,7 +2515,7 @@ bool ofc_sema_decl_print_name(ofc_colstr_t* cs,
 	const ofc_sema_decl_t* decl)
 {
 	if (!decl) return false;
-	return ofc_sparse_ref_print(cs, decl->name);
+	return ofc_sparse_ref_print(cs, decl->ast.name);
 }
 
 bool ofc_sema_decl_print(ofc_colstr_t* cs,
@@ -2535,7 +2535,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 			&& ofc_sema_decl_print_name(cs, decl));
 	}
 
-	if (!decl->type)
+	if (!decl->ast.type)
 		return false;
 
 	const ofc_print_opts_t* opts =
@@ -2556,17 +2556,17 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 
 	const ofc_sema_type_t* type = NULL;
 	bool is_pointer = false;
-	if ((decl->type->type == OFC_SEMA_TYPE_TYPE)
-		|| (decl->type->type == OFC_SEMA_TYPE_RECORD))
+	if ((decl->ast.type->type == OFC_SEMA_TYPE_TYPE)
+		|| (decl->ast.type->type == OFC_SEMA_TYPE_RECORD))
 	{
-		if (!decl->structure)
+		if (!decl->ast.structure)
 			return false;
 
-		if (ofc_sema_structure_is_derived_type(decl->structure))
+		if (ofc_sema_structure_is_derived_type(decl->ast.structure))
 		{
 			if (!ofc_colstr_keyword_atomic_writez(cs, "TYPE")
 				|| !ofc_colstr_atomic_writef(cs, "(")
-				|| !ofc_sema_structure_print_name(cs, decl->structure)
+				|| !ofc_sema_structure_print_name(cs, decl->ast.structure)
 				|| !ofc_colstr_atomic_writef(cs, ")"))
 				return false;
 		}
@@ -2575,7 +2575,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 			return (ofc_colstr_keyword_atomic_writez(cs, "RECORD")
 				&& ofc_colstr_atomic_writef(cs, " ")
 				&& ofc_colstr_atomic_writef(cs, "/")
-				&& ofc_sema_structure_print_name(cs, decl->structure)
+				&& ofc_sema_structure_print_name(cs, decl->ast.structure)
 				&& ofc_colstr_atomic_writef(cs, "/")
 				&& ofc_colstr_atomic_writef(cs, " ")
 				&& ofc_sema_decl_print_name(cs, decl));
@@ -2583,7 +2583,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 	}
 	else
 	{
-		type = decl->type;
+		type = decl->ast.type;
 		if (!type) return false;
 
 		is_pointer = (type->type == OFC_SEMA_TYPE_POINTER);
@@ -2638,7 +2638,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		f90_style = true;
 	}
 
-	if (decl->access == OFC_SEMA_ACCESSIBILITY_PUBLIC)
+	if (decl->ast.access == OFC_SEMA_ACCESSIBILITY_PUBLIC)
 	{
 		if (!ofc_colstr_atomic_writef(cs, ",")
 			|| !ofc_colstr_atomic_writef(cs, " ")
@@ -2647,7 +2647,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		f90_style = true;
 	}
 
-	if (decl->access == OFC_SEMA_ACCESSIBILITY_PRIVATE)
+	if (decl->ast.access == OFC_SEMA_ACCESSIBILITY_PRIVATE)
 	{
 		if (!ofc_colstr_atomic_writef(cs, ",")
 			|| !ofc_colstr_atomic_writef(cs, " ")
@@ -2670,7 +2670,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		if (!ofc_colstr_atomic_writef(cs, ",")
 			|| !ofc_colstr_atomic_writef(cs, " ")
 			|| !ofc_colstr_keyword_atomic_writez(cs, "DIMENSION")
-			|| !ofc_sema_array_print_brackets(cs, decl->array))
+			|| !ofc_sema_array_print_brackets(cs, decl->ast.array))
 			return false;
 		f90_style = true;
 	}
@@ -2679,7 +2679,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		return false;
 
 	bool init_zero = (opts
-		&& opts->init_zero && !decl->structure);
+		&& opts->init_zero && !decl->ast.structure);
 
 	if (init_zero)
 	{
@@ -2690,11 +2690,11 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 			|| decl->is_parameter
 			|| decl->is_stmt_func_arg
 			|| decl->is_intrinsic
-			|| decl->common)
+			|| decl->ast.common)
 			init_zero = false;
 
 		if (ofc_sema_decl_is_array(decl)
-			&& !ofc_sema_array_total(decl->array, NULL))
+			&& !ofc_sema_array_total(decl->ast.array, NULL))
 			init_zero = false;
 
 		if (ofc_sema_decl_is_procedure(decl))
@@ -2740,7 +2740,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		if (ofc_sema_decl_is_composite(decl))
 		{
 			bool reshape = (ofc_sema_decl_is_array(decl)
-				&& (decl->array->dimensions > 1));
+				&& (decl->ast.array->ast.dimensions > 1));
 
 			if (reshape)
 			{
@@ -2767,21 +2767,21 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 						return false;
 				}
 
-				if (decl->init_array[i].is_substring)
+				if (decl->ast.init_array[i].is_substring)
 				{
 					unsigned len;
 					for (len = 0; len < type->len; len++)
 					{
-						if (!decl->init_array[i].substring.mask[len])
+						if (!decl->ast.init_array[i].substring.mask[len])
 							break;
 					}
 
 					if (!ofc_colstr_write_escaped(cs, '\"',
-						decl->init_array[i].substring.string, len))
+						decl->ast.init_array[i].substring.string, len))
 						return false;
 				}
 				else if (!ofc_sema_expr_print(
-					cs, decl->init_array[i].expr))
+					cs, decl->ast.init_array[i].expr))
 				{
 					return false;
 				}
@@ -2797,7 +2797,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 					|| !ofc_colstr_atomic_writef(cs, " ")
 					|| !ofc_colstr_atomic_writef(cs, "(/")
 					|| !ofc_colstr_atomic_writef(cs, " ")
-					|| !ofc_sema_array_print_size(cs, decl->array)
+					|| !ofc_sema_array_print_size(cs, decl->ast.array)
 					|| !ofc_colstr_atomic_writef(cs, " ")
 					|| !ofc_colstr_atomic_writef(cs, "/)")
 					|| !ofc_colstr_atomic_writef(cs, ")"))
@@ -2806,20 +2806,20 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		}
 		else
 		{
-			if (decl->init.is_substring)
+			if (decl->ast.init.is_substring)
 			{
 				unsigned len;
 				for (len = 0; len < type->len; len++)
 				{
-					if (!decl->init.substring.mask[len])
+					if (!decl->ast.init.substring.mask[len])
 						break;
 				}
 
 				if (!ofc_colstr_write_escaped(cs, '\"',
-					decl->init.substring.string, len))
+					decl->ast.init.substring.string, len))
 					return false;
 			}
-			else if (!ofc_sema_expr_print(cs, decl->init.expr))
+			else if (!ofc_sema_expr_print(cs, decl->ast.init.expr))
 				return false;
 		}
 	}
@@ -2833,7 +2833,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		if (ofc_sema_decl_is_composite(decl))
 		{
 			bool reshape = (ofc_sema_decl_is_array(decl)
-				&& (decl->array->dimensions > 1));
+				&& (decl->ast.array->ast.dimensions > 1));
 
 			if (reshape)
 			{
@@ -2860,10 +2860,10 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 						return false;
 				}
 
-				if (decl->init_array && ofc_sema_decl_init__used(
-					decl->init_array[i], decl->type, NULL))
+				if (decl->ast.init_array && ofc_sema_decl_init__used(
+					decl->ast.init_array[i], decl->ast.type, NULL))
 				{
-					if (decl->init_array[i].is_substring)
+					if (decl->ast.init_array[i].is_substring)
 					{
 						char s[type->len];
 						memset(s, ' ', type->len);
@@ -2871,9 +2871,9 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 						unsigned i, len = 0;
 						for (i = 0; i < type->len; i++)
 						{
-							if (decl->init_array[i].substring.mask[len])
+							if (decl->ast.init_array[i].substring.mask[len])
 							{
-								s[i] = decl->init_array[i].substring.string[i];
+								s[i] = decl->ast.init_array[i].substring.string[i];
 								len = (i + 1);
 							}
 						}
@@ -2882,12 +2882,12 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 							return false;
 					}
 					else if (!ofc_sema_expr_print(
-						cs, decl->init_array[i].expr))
+						cs, decl->ast.init_array[i].expr))
 					{
 						return false;
 					}
 				}
-				else if (!ofc_sema_type_print_zero(cs, decl->type))
+				else if (!ofc_sema_type_print_zero(cs, decl->ast.type))
 				{
 					return false;
 				}
@@ -2903,7 +2903,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 					|| !ofc_colstr_atomic_writef(cs, " ")
 					|| !ofc_colstr_atomic_writef(cs, "(/")
 					|| !ofc_colstr_atomic_writef(cs, " ")
-					|| !ofc_sema_array_print_size(cs, decl->array)
+					|| !ofc_sema_array_print_size(cs, decl->ast.array)
 					|| !ofc_colstr_atomic_writef(cs, " ")
 					|| !ofc_colstr_atomic_writef(cs, "/)")
 					|| !ofc_colstr_atomic_writef(cs, ")"))
@@ -2912,7 +2912,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 		}
 		else
 		{
-			if (init_partial && decl->init.is_substring)
+			if (init_partial && decl->ast.init.is_substring)
 			{
 				char s[type->len];
 				memset(s, ' ', type->len);
@@ -2920,9 +2920,9 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 				unsigned i, len = 0;
 				for (i = 0; i < type->len; i++)
 				{
-					if (decl->init.substring.mask[len])
+					if (decl->ast.init.substring.mask[len])
 					{
-						s[i] = decl->init.substring.string[i];
+						s[i] = decl->ast.init.substring.string[i];
 						len = (i + 1);
 					}
 				}
@@ -2930,7 +2930,7 @@ bool ofc_sema_decl_print(ofc_colstr_t* cs,
 				if (!ofc_colstr_write_escaped(cs, '\"', s, len))
 					return false;
 			}
-			else if (!ofc_sema_type_print_zero(cs, decl->type))
+			else if (!ofc_sema_type_print_zero(cs, decl->ast.type))
 				return false;
 		}
 	}
@@ -2960,7 +2960,7 @@ static bool ofc_sema_decl_print_data_init__ssn(
 
 	*first = false;
 
-	return (ofc_sparse_ref_print(cs, decl->name)
+	return (ofc_sparse_ref_print(cs, decl->ast.name)
 		&& ofc_colstr_atomic_writef(cs, "(")
 		&& ofc_colstr_atomic_writef(cs, "%u", (base + 1))
 		&& ofc_colstr_atomic_writef(cs, ":")
@@ -3019,11 +3019,11 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 			|| decl->is_parameter
 			|| decl->is_stmt_func_arg
 			|| decl->is_intrinsic
-			|| decl->common)
+			|| decl->ast.common)
 			init_zero = false;
 
 		if (ofc_sema_decl_is_array(decl)
-			&& !ofc_sema_array_total(decl->array, NULL))
+			&& !ofc_sema_array_total(decl->ast.array, NULL))
 			init_zero = false;
 
 		if (ofc_sema_decl_is_procedure(decl))
@@ -3041,7 +3041,7 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 
 	if (ofc_sema_decl_is_array(decl))
 	{
-		if (decl->structure)
+		if (decl->ast.structure)
 		{
 			/* TODO - Support structure arrays. */
 			return false;
@@ -3058,8 +3058,8 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 		unsigned i;
 		for (i = 0, first = true; i < count; i++)
 		{
-			if (!decl->init_array[i].is_substring
-				&& !decl->init_array[i].expr
+			if (!decl->ast.init_array[i].is_substring
+				&& !decl->ast.init_array[i].expr
 				&& !init_zero)
 				continue;
 
@@ -3088,8 +3088,8 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 
 		for (i = 0, first = true; i < count; i++)
 		{
-			if (!decl->init_array[i].is_substring
-				&& !decl->init_array[i].expr
+			if (!decl->ast.init_array[i].is_substring
+				&& !decl->ast.init_array[i].expr
 				&& !init_zero)
 				continue;
 
@@ -3101,13 +3101,13 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 			}
 			first = false;
 
-			if (decl->init_array[i].is_substring)
+			if (decl->ast.init_array[i].is_substring)
 			{
 				bool u = false;
 				unsigned j, l;
-				for (j = 0, l = 0; j < decl->type->len; j++)
+				for (j = 0, l = 0; j < decl->ast.type->len; j++)
 				{
-					if (decl->init_array[i].substring.mask[j])
+					if (decl->ast.init_array[i].substring.mask[j])
 					{
 						if (u)
 						{
@@ -3123,19 +3123,19 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 				}
 
 				if (!ofc_colstr_write_escaped(cs, '\"',
-						decl->init_array[i].substring.string, l))
+						decl->ast.init_array[i].substring.string, l))
 					return false;
 			}
-			else if (decl->init_array[i].expr)
+			else if (decl->ast.init_array[i].expr)
 			{
 				if (!ofc_sema_expr_print(
-					cs, decl->init_array[i].expr))
+					cs, decl->ast.init_array[i].expr))
 					return false;
 			}
 			else
 			{
 				if (!ofc_sema_type_print_zero(
-					cs, decl->type))
+					cs, decl->ast.type))
 					return false;
 			}
 		}
@@ -3154,8 +3154,8 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 		unsigned i;
 		for (i = 0, first = true; i < count; i++)
 		{
-			if (!decl->init_array[i].is_substring
-				&& !decl->init_array[i].expr
+			if (!decl->ast.init_array[i].is_substring
+				&& !decl->ast.init_array[i].expr
 				&& !init_zero)
 				continue;
 
@@ -3169,12 +3169,12 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 
 			ofc_sema_decl_t* member
 				= ofc_sema_structure_elem_get(
-					decl->structure, i);
+					decl->ast.structure, i);
 			if (!member) return false;
 
 			if (!ofc_sema_decl_print_name(cs, decl)
 				|| !ofc_sema_structure_elem_print(
-					cs, decl->structure, i))
+					cs, decl->ast.structure, i))
 				return false;
 		}
 
@@ -3183,8 +3183,8 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 
 		for (i = 0, first = true; i < count; i++)
 		{
-			if (!decl->init_array[i].is_substring
-				&& !decl->init_array[i].expr
+			if (!decl->ast.init_array[i].is_substring
+				&& !decl->ast.init_array[i].expr
 				&& !init_zero)
 				continue;
 
@@ -3196,13 +3196,13 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 			}
 			first = false;
 
-			if (decl->init_array[i].is_substring)
+			if (decl->ast.init_array[i].is_substring)
 			{
 				bool u = false;
 				unsigned j, l;
-				for (j = 0, l = 0; j < decl->type->len; j++)
+				for (j = 0, l = 0; j < decl->ast.type->len; j++)
 				{
-					if (decl->init_array[i].substring.mask[j])
+					if (decl->ast.init_array[i].substring.mask[j])
 					{
 						if (u)
 						{
@@ -3218,26 +3218,26 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 				}
 
 				if (!ofc_colstr_write_escaped(cs, '\"',
-						decl->init_array[i].substring.string, l))
+						decl->ast.init_array[i].substring.string, l))
 					return false;
 			}
-			else if (decl->init_array[i].expr)
+			else if (decl->ast.init_array[i].expr)
 			{
 				if (!ofc_sema_expr_print(
-					cs, decl->init_array[i].expr))
+					cs, decl->ast.init_array[i].expr))
 					return false;
 			}
 			else
 			{
 				ofc_sema_decl_t* member
 					= ofc_sema_structure_elem_get(
-						decl->structure, i);
+						decl->ast.structure, i);
 				if (!member) return false;
 
 				if (!ofc_sema_decl_is_initialized(member, NULL))
 				{
 					if (!ofc_sema_type_print_zero(
-						cs, member->type))
+						cs, member->ast.type))
 						return false;
 				}
 			}
@@ -3246,11 +3246,11 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 		if (!ofc_colstr_atomic_writef(cs, "/"))
 			return false;
 	}
-	else if (ofc_sema_type_is_character(decl->type))
+	else if (ofc_sema_type_is_character(decl->ast.type))
 	{
 		unsigned csize = 0;
 		if (!ofc_sema_type_base_size(
-			decl->type, &csize))
+			decl->ast.type, &csize))
 			return false;
 		if (csize != 1)
 		{
@@ -3262,9 +3262,9 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 		unsigned i, b, s;
 
 		for (i = 0, b = 0, s = 0, first = true;
-			i < decl->type->len; i++)
+			i < decl->ast.type->len; i++)
 		{
-			if (decl->init.substring.mask[i])
+			if (decl->ast.init.substring.mask[i])
 			{
 				s++;
 			}
@@ -3285,23 +3285,23 @@ bool ofc_sema_decl_print_data_init(ofc_colstr_t* cs,
 			return false;
 
 		for (i = 0, b = 0, s = 0, first = true;
-			i < decl->type->len; i++)
+			i < decl->ast.type->len; i++)
 		{
-			if (decl->init.substring.mask[i])
+			if (decl->ast.init.substring.mask[i])
 			{
 				s++;
 			}
 			else
 			{
 				if (!ofc_sema_decl_print_data_init__ssc(
-					cs, decl->init.substring.string, &first, b, s))
+					cs, decl->ast.init.substring.string, &first, b, s))
 					return false;
 				b = (i + 1);
 				s = 0;
 			}
 		}
 		if (!ofc_sema_decl_print_data_init__ssc(
-			cs, decl->init.substring.string, &first, b, s))
+			cs, decl->ast.init.substring.string, &first, b, s))
 			return false;
 
 		if (!ofc_colstr_atomic_writef(cs, "/"))
@@ -3327,13 +3327,13 @@ bool ofc_sema_decl_list_stmt_func_print(
 			if (!ofc_colstr_newline(cs, indent, NULL)
 				|| !ofc_sema_decl_print_name(cs, decl)
 				|| !ofc_colstr_atomic_writef(cs, "(")
-				|| (decl->func->args && !ofc_sema_arg_list_print(cs,
-					decl->func->args))
+				|| (decl->ast.func->args && !ofc_sema_arg_list_print(cs,
+					decl->ast.func->args))
 				|| !ofc_colstr_atomic_writef(cs, ")")
 				|| !ofc_colstr_atomic_writef(cs, " ")
 				|| !ofc_colstr_atomic_writef(cs, "=")
 				|| !ofc_colstr_atomic_writef(cs, " ")
-				|| !ofc_sema_scope_print(cs, indent, decl->func))
+				|| !ofc_sema_scope_print(cs, indent, decl->ast.func))
 				return false;
 		}
 	}
@@ -3352,21 +3352,21 @@ bool ofc_sema_decl_list_procedure_print(
 	for (i = 0; i < decl_list->size; i++)
 	{
 		ofc_sema_decl_t* decl = decl_list->decl[i];
-		if (decl && decl->func)
+		if (decl && decl->ast.func)
 		{
-			if (decl->func->type == OFC_SEMA_SCOPE_SUBROUTINE)
+			if (decl->ast.func->type == OFC_SEMA_SCOPE_SUBROUTINE)
 			{
 				if (!ofc_colstr_newline(cs, indent, NULL)
-					|| !ofc_sema_scope_print(cs, indent, decl->func))
+					|| !ofc_sema_scope_print(cs, indent, decl->ast.func))
 					return false;
 			}
-			else if (decl->func->type == OFC_SEMA_SCOPE_FUNCTION)
+			else if (decl->ast.func->type == OFC_SEMA_SCOPE_FUNCTION)
 			{
 				if (!ofc_colstr_newline(cs, indent, NULL)
 					|| !ofc_colstr_newline(cs, indent, NULL)
-					|| !ofc_sema_type_print(cs, decl->type->subtype)
+					|| !ofc_sema_type_print(cs, decl->ast.type->subtype)
 					|| !ofc_colstr_atomic_writef(cs, " ")
-					|| !ofc_sema_scope_print(cs, indent, decl->func))
+					|| !ofc_sema_scope_print(cs, indent, decl->ast.func))
 					return false;
 			}
 		}

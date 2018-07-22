@@ -320,7 +320,7 @@ bool ofc_sema_stmt_if_then_print(
 		= ofc_sema_label_map_find_end_block(
 			label_map, stmt);
 	const unsigned* ulabel = NULL;
-	if (label) ulabel = &label->number;
+	if (label) ulabel = &label->ast.number;
 
 	bool hide_end = false;
 	if (stmt->if_then.block_else)

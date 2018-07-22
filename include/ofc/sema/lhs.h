@@ -26,7 +26,7 @@ typedef enum
 	OFC_SEMA_LHS_IMPLICIT_DO,
 } ofc_sema_lhs_e;
 
-struct ofc_sema_lhs_s
+typedef struct
 {
 	ofc_sema_lhs_e type;
 
@@ -73,6 +73,11 @@ struct ofc_sema_lhs_s
 		};
 	};
 
+} ofc_sema_lhs_ast_t;
+
+struct ofc_sema_lhs_s
+{
+	ofc_sema_lhs_ast_t ast;
 	unsigned refcnt;
 };
 

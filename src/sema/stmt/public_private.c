@@ -86,13 +86,13 @@ bool ofc_sema_stmt__public_private(
 				scope, base_name, true);
 		if (!decl) return false;
 
-		if ((is_public && (decl->access == OFC_SEMA_ACCESSIBILITY_PUBLIC))
-			|| (!is_public && (decl->access == OFC_SEMA_ACCESSIBILITY_PRIVATE)))
+		if ((is_public && (decl->ast.access == OFC_SEMA_ACCESSIBILITY_PUBLIC))
+			|| (!is_public && (decl->ast.access == OFC_SEMA_ACCESSIBILITY_PRIVATE)))
 		{
 			ofc_sparse_ref_warning(stmt->public_private.list->lhs[i]->src,
 				"Declaration already set as %s", kwstr);
 		}
-		else if (decl->access != OFC_SEMA_ACCESSIBILITY_DEFAULT)
+		else if (decl->ast.access != OFC_SEMA_ACCESSIBILITY_DEFAULT)
 		{
 			ofc_sparse_ref_error(stmt->public_private.list->lhs[i]->src,
 				"Declaration already set as %s",
@@ -101,9 +101,9 @@ bool ofc_sema_stmt__public_private(
 		}
 
 		if (is_public)
-			decl->access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
+			decl->ast.access = OFC_SEMA_ACCESSIBILITY_PUBLIC;
 		else
-			decl->access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
+			decl->ast.access = OFC_SEMA_ACCESSIBILITY_PRIVATE;
 	}
 
 	return true;

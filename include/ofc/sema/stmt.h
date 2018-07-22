@@ -404,10 +404,19 @@ bool ofc_sema_stmt_is_stmt_func(
 	ofc_sema_scope_t* scope,
 	const ofc_parse_stmt_t* stmt);
 
+
+typedef struct
+{
+	unsigned          count;
+	ofc_sema_stmt_t** stmt;
+} ofc_ast_stmt_list_t;
+
+
 struct ofc_sema_stmt_list_s
 {
 	unsigned          count;
 	ofc_sema_stmt_t** stmt;
+	ofc_ast_stmt_list_t ast;
 };
 
 

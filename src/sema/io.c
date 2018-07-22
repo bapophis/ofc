@@ -32,7 +32,7 @@ bool ofc_sema_io_compare_types(
 	{
 		if (!expr)
 		{
-			ofc_sparse_ref_warning(lhs->src,
+			ofc_sparse_ref_warning(lhs->ast.src,
 				"Trying to format a %s output  with a %s FORMAT descriptor",
 				ofc_sema_format_str_rep(desc->type),
 				ofc_sema_type_str_rep(type));
@@ -63,7 +63,7 @@ bool ofc_sema_io_compare_types(
 		if (!ofc_sema_type_base_size(type, &csize)
 			|| (csize != 1))
 		{
-			ofc_sparse_ref_t src = (lhs ? lhs->src : (*expr)->src);
+			ofc_sparse_ref_t src = (lhs ? lhs->ast.src : (*expr)->src);
 			ofc_sparse_ref_error(src,
 				"CHARACTER type KIND not supported in %s",
 				(stmt->type == OFC_SEMA_STMT_IO_WRITE ? "WRITE" : "PRINT"));
@@ -108,7 +108,7 @@ bool ofc_sema_io_list_has_complex(
 	else if (olist)
 	{
 		unsigned i;
-		for (i = 0; i < olist->count; i++)
+		for (i = 0; i < olist->ast.count; i++)
 		{
 			ofc_sema_expr_t* expr
 				= ofc_sema_expr_list_elem_get(olist, i);
@@ -122,7 +122,7 @@ bool ofc_sema_io_list_has_complex(
 			{
 				unsigned elem_count;
 				if (!ofc_sema_expr_elem_count(
-					olist->expr[i], &elem_count))
+					olist->ast.expr[i], &elem_count))
 					return false;
 
 				*count += elem_count;
@@ -533,7 +533,7 @@ bool ofc_sema_io_format_iolist_compare(
 		return false;
 
 	offset = 0;
-	for (i = 0; i < iolist->count; i++)
+	for (i = 0; i < iolist->ast.count; i++)
 	{
 		if (offset >= count)
 			offset = repeat_from;
@@ -772,9 +772,9 @@ bool ofc_sema_stmt_io_format_validate(
 		return true;
 	}
 
-	if ((label->type != OFC_SEMA_LABEL_STMT)
-		|| !label->stmt
-		|| (label->stmt->type != OFC_SEMA_STMT_IO_FORMAT))
+	if ((label->ast.type != OFC_SEMA_LABEL_STMT)
+		|| !label->ast.stmt
+		|| (label->ast.stmt->type != OFC_SEMA_STMT_IO_FORMAT))
 	{
 		ofc_sparse_ref_error(stmt->src,
 			"FORMAT label must point to a FORMAT statement");
@@ -782,8 +782,8 @@ bool ofc_sema_stmt_io_format_validate(
 	}
 
 	const ofc_parse_format_desc_list_t* format
-		= label->stmt->io_format.format;
-	if (!format) format = label->stmt->io_format.src;
+		= label->ast.stmt->io_format.format;
+	if (!format) format = label->ast.stmt->io_format.src;
 	if (!format) return false;
 
 	unsigned data_desc_count
@@ -906,13 +906,13 @@ bool ofc_sema_stmt_io_format_validate_defaults(
 		return true;
 	}
 
-	if ((label->type != OFC_SEMA_LABEL_STMT)
-		|| !label->stmt
-		|| (label->stmt->type != OFC_SEMA_STMT_IO_FORMAT)
-		|| (label->stmt != format_stmt))
+	if ((label->ast.type != OFC_SEMA_LABEL_STMT)
+		|| !label->ast.stmt
+		|| (label->ast.stmt->type != OFC_SEMA_STMT_IO_FORMAT)
+		|| (label->ast.stmt != format_stmt))
 		return true;
 
-	if (label->stmt->io_format.is_default_possible)
+	if (label->ast.stmt->io_format.is_default_possible)
 	{
 		if (ilist)
 		{

@@ -47,36 +47,36 @@ static ofc_sema_decl_t* ofc_sema_parameter__assign(
 
 	if (decl->type_implicit)
 	{
-		decl->type = type;
+		decl->ast.type = type;
 	}
 	else
 	{
-		if ((decl->type->kind == 0)
+		if ((decl->ast.type->kind == 0)
 			&& (type->kind != 0))
 		{
 			const ofc_sema_type_t* ntype
 				= ofc_sema_type_set_kind(
-					decl->type, type->kind);
+					decl->ast.type, type->kind);
 			if (!ntype)
 			{
 				ofc_sema_expr_delete(init_expr);
 				return NULL;
 			}
-			decl->type = ntype;
+			decl->ast.type = ntype;
 		}
 
-		if ((decl->type->len == 0)
+		if ((decl->ast.type->len == 0)
 			&& ((type->len != 0) || type->len_var))
 		{
 			const ofc_sema_type_t* ntype
 				= ofc_sema_type_set_len(
-					decl->type, type->len, type->len_var);
+					decl->ast.type, type->len, type->len_var);
 			if (!ntype)
 			{
 				ofc_sema_expr_delete(init_expr);
 				return NULL;
 			}
-			decl->type = ntype;
+			decl->ast.type = ntype;
 		}
 	}
 

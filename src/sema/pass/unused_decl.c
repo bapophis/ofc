@@ -34,13 +34,13 @@ static bool ofc_sema_pass_unused_decl__scope(
 		ofc_sema_decl_t* decl = scope->decl->decl[i];
 
 		if (decl
-			&& (decl->type->type != OFC_SEMA_TYPE_FUNCTION)
-			&& (decl->type->type != OFC_SEMA_TYPE_SUBROUTINE)
+			&& (decl->ast.type->type != OFC_SEMA_TYPE_FUNCTION)
+			&& (decl->ast.type->type != OFC_SEMA_TYPE_SUBROUTINE)
 			&& !decl->is_stmt_func_arg
 			&& !decl->is_argument
 			&& !decl->was_written
 			&& !decl->was_read
-			&& !decl->common)
+			&& !decl->ast.common)
 		{
 			ofc_sema_decl_list_remove(scope->decl, decl);
 		}

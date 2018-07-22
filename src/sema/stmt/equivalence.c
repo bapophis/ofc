@@ -58,7 +58,7 @@ bool ofc_sema_stmt_equivalence(
 
 		if (list->count < 2)
 		{
-			ofc_sparse_ref_warning(base->src,
+			ofc_sparse_ref_warning(base->ast.src,
 				"EQUIVALENCE groups should contain more than 1 entry.");
 			ofc_sema_lhs_delete(base);
 			continue;
@@ -107,7 +107,7 @@ bool ofc_sema_stmt_equivalence(
 			{
 				if (!global_opts.no_warn_equiv_type)
 				{
-					ofc_sparse_ref_warning(elhs->src,
+					ofc_sparse_ref_warning(elhs->ast.src,
 						"EQUIVALENCE types don't match.");
 				}
 			}
@@ -115,7 +115,7 @@ bool ofc_sema_stmt_equivalence(
 			if (!ofc_sema_equiv_add(equiv, elhs))
 			{
 				/* TODO - Better error messages for this in 'sema/equiv.c'. */
-				ofc_sparse_ref_warning(base->src,
+				ofc_sparse_ref_warning(base->ast.src,
 					"EQUIVALENCE statement causes collision.");
 
 				ofc_sema_lhs_delete(elhs);

@@ -22,17 +22,17 @@ ofc_sparse_ref_t ofc_sema_label_src(
 	if (!label)
 		return OFC_SPARSE_REF_EMPTY;
 
-	switch (label->type)
+	switch (label->ast.type)
 	{
 		case OFC_SEMA_LABEL_STMT:
 		case OFC_SEMA_LABEL_END_BLOCK:
-			if (label->stmt)
-				return label->stmt->src;
+			if (label->ast.stmt)
+				return label->ast.stmt->src;
 			break;
 
 		case OFC_SEMA_LABEL_END_SCOPE:
-			if (label->scope)
-				return label->scope->src;
+			if (label->ast.scope)
+				return label->ast.scope->src;
 			break;
 
 		default:
@@ -61,9 +61,9 @@ static ofc_sema_label_t* ofc_sema_label__stmt(
 			sizeof(ofc_sema_label_t));
 	if (!label) return NULL;
 
-	label->type   = type;
-	label->number = number;
-	label->stmt   = stmt;
+	label->ast.type   = type;
+	label->ast.number = number;
+	label->ast.stmt   = stmt;
 	label->used   = false;
 
 	return label;
@@ -77,9 +77,9 @@ static ofc_sema_label_t* ofc_sema_label__scope(
 			sizeof(ofc_sema_label_t));
 	if (!label) return NULL;
 
-	label->type   = OFC_SEMA_LABEL_END_SCOPE;
-	label->number = number;
-	label->scope  = scope;
+	label->ast.type   = OFC_SEMA_LABEL_END_SCOPE;
+	label->ast.number = number;
+	label->ast.scope  = scope;
 	label->used   = false;
 
 	return label;
@@ -88,19 +88,19 @@ static ofc_sema_label_t* ofc_sema_label__scope(
 static const unsigned* ofc_sema_label__number(
 	const ofc_sema_label_t* label)
 {
-	return (label ? &label->number : NULL);
+	return (label ? &label->ast.number : NULL);
 }
 
 static const ofc_sema_stmt_t* ofc_sema_label__stmt_key(
 	const ofc_sema_label_t* label)
 {
-	return (label ? label->stmt : NULL);
+	return (label ? label->ast.stmt : NULL);
 }
 
 static const ofc_sema_scope_t* ofc_sema_label__scope_key(
 	const ofc_sema_label_t* label)
 {
-	return (label ? label->scope : NULL);
+	return (label ? label->ast.scope : NULL);
 }
 
 static bool ofc_sema_label__compare(
@@ -401,7 +401,7 @@ void ofc_sema_label_map_remove(
     if (!map || !label)
 		return;
 
-	switch (label->type)
+	switch (label->ast.type)
 	{
 		case OFC_SEMA_LABEL_STMT:
 			ofc_hashmap_remove(map->stmt, label);
@@ -423,7 +423,7 @@ void ofc_sema_label_map_remove(
 	for (i = 0; i < map->size; i++)
 	{
 		if (map->label[i]
-			&& (map->label[i]->number == label->number))
+			&& (map->label[i]->ast.number == label->ast.number))
 		{
 			map->label[i] = NULL;
 			map->count--;

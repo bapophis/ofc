@@ -134,7 +134,7 @@ static bool ofc_global_pass_args__stmt(
 
 	ofc_subroutine_list_t* list
 		= ofc_hashmap_find_modify(
-			args_table, &stmt->call.subroutine->name.string);
+			args_table, &stmt->call.subroutine->ast.name.string);
 	if (list)
 	{
 		if (!ofc_subroutine_list_add(
@@ -148,7 +148,7 @@ static bool ofc_global_pass_args__stmt(
 		if (!call) return false;
 
 		list = ofc_subroutine_list_create(
-			stmt->call.subroutine->name.string, call);
+			stmt->call.subroutine->ast.name.string, call);
 		if (!list)
 		{
 			free(call);
@@ -193,7 +193,7 @@ static bool ofc_global_pass_args__expr(
 
 	ofc_subroutine_list_t* list
 		= ofc_hashmap_find_modify(
-			args_table, &expr->function->name.string);
+			args_table, &expr->function->ast.name.string);
 	if (list)
 	{
 		if (!ofc_subroutine_list_add(
@@ -207,7 +207,7 @@ static bool ofc_global_pass_args__expr(
 		if (!call) return false;
 
 		list = ofc_subroutine_list_create(
-			expr->function->name.string, call);
+			expr->function->ast.name.string, call);
 		if (!list)
 		{
 			free(call);
@@ -255,21 +255,21 @@ static bool ofc_global_pass_args__check(
 	{
 		if (scope->args)
 		{
-			if (scope->args->count != list->call[i]->args->count)
+			if (scope->args->ast.count != list->call[i]->args->ast.count)
 			{
-				ofc_sparse_ref_warning(list->call[i]->subr->name,
+				ofc_sparse_ref_warning(list->call[i]->subr->ast.name,
 					"Wrong number of arguments in %s call",
-					ofc_sema_type_str_rep(list->call[i]->subr->type));
+					ofc_sema_type_str_rep(list->call[i]->subr->ast.type));
 				continue;
 			}
 
 			unsigned l;
-			for (l = 0; l < scope->args->count; l++)
+			for (l = 0; l < scope->args->ast.count; l++)
 			{
 				ofc_sema_arg_t dummy_arg
-					= scope->args->arg[l];
+					= scope->args->ast.arg[l];
 				ofc_sema_dummy_arg_t* actual_arg
-					= list->call[i]->args->dummy_arg[l];
+					= list->call[i]->args->ast.dummy_arg[l];
 
 				if (dummy_arg.alt_return
 					&& ofc_sema_dummy_arg_is_alt_return(actual_arg))
@@ -280,7 +280,7 @@ static bool ofc_global_pass_args__check(
 				{
 					ofc_sparse_ref_warning(actual_arg->src,
 						"Incompatible argument in %s call, expected label for alternate return.",
-						ofc_sema_type_str_rep(list->call[i]->subr->type));
+						ofc_sema_type_str_rep(list->call[i]->subr->ast.type));
 					continue;
 				}
 				else if (!dummy_arg.alt_return
@@ -294,7 +294,7 @@ static bool ofc_global_pass_args__check(
 
 					ofc_sparse_ref_warning(actual_arg->src,
 						"Incompatible alternate return argument in %s call, expected %s.",
-						ofc_sema_type_str_rep(list->call[i]->subr->type),
+						ofc_sema_type_str_rep(list->call[i]->subr->ast.type),
 						ofc_sema_type_str_rep(dummy_arg_type));
 					continue;
 				}
@@ -317,7 +317,7 @@ static bool ofc_global_pass_args__check(
 					{
 						ofc_sparse_ref_warning(actual_arg->src,
 							"Incompatible argument type (EXTERNAL) in %s call, expected %s.",
-							ofc_sema_type_str_rep(list->call[i]->subr->type),
+							ofc_sema_type_str_rep(list->call[i]->subr->ast.type),
 							ofc_sema_type_str_rep(dummy_arg_type));
 					}
 					continue;
@@ -333,7 +333,7 @@ static bool ofc_global_pass_args__check(
 						ofc_sparse_ref_warning(actual_arg->src,
 							"Incompatible argument type (%s) in %s call, expected %s.",
 							ofc_sema_type_str_rep(actual_arg_type),
-							ofc_sema_type_str_rep(list->call[i]->subr->type),
+							ofc_sema_type_str_rep(list->call[i]->subr->ast.type),
 							ofc_sema_type_str_rep(dummy_arg_type));
 					}
 					else if (!ofc_sema_type_cast_is_lossless(
@@ -343,7 +343,7 @@ static bool ofc_global_pass_args__check(
 							"Argument cast from %s to %s may be lossy in %s call",
 							ofc_sema_type_str_rep(actual_arg_type),
 							ofc_sema_type_str_rep(dummy_arg_type),
-							ofc_sema_type_str_rep(list->call[i]->subr->type));
+							ofc_sema_type_str_rep(list->call[i]->subr->ast.type));
 					}
 				}
 
@@ -353,7 +353,7 @@ static bool ofc_global_pass_args__check(
 				{
 					ofc_sparse_ref_warning(actual_arg->src,
 						"Constant reference may be written to in %s call",
-						ofc_sema_type_str_rep(list->call[i]->subr->type));
+						ofc_sema_type_str_rep(list->call[i]->subr->ast.type));
 				}
 			}
 		}

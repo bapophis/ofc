@@ -36,10 +36,10 @@ static ofc_sema_lhs_t* ofc_sema_lhs_index(
 		return NULL;
 	}
 
-	alhs->type      = OFC_SEMA_LHS_ARRAY_INDEX;
-	alhs->src       = lhs->src;
-	alhs->parent    = lhs;
-	alhs->index     = index;
+	alhs->ast.type      = OFC_SEMA_LHS_ARRAY_INDEX;
+	alhs->ast.src       = lhs->ast.src;
+	alhs->ast.parent    = lhs;
+	alhs->ast.index     = index;
 	alhs->refcnt    = 0;
 
 	return alhs;
@@ -77,13 +77,13 @@ static ofc_sema_lhs_t* ofc_sema_lhs_slice(
 		return NULL;
 	}
 
-	alhs->type        = OFC_SEMA_LHS_ARRAY_SLICE;
-	alhs->src         = lhs->src;
-	alhs->parent      = lhs;
+	alhs->ast.type        = OFC_SEMA_LHS_ARRAY_SLICE;
+	alhs->ast.src         = lhs->ast.src;
+	alhs->ast.parent      = lhs;
 	alhs->refcnt      = 0;
 
-	alhs->slice.slice = slice;
-	alhs->slice.dims  = array;
+	alhs->ast.slice.slice = slice;
+	alhs->ast.slice.dims  = array;
 
 	return alhs;
 }
@@ -183,7 +183,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs_substring(
 
 		if (ifirst < 0)
 		{
-			ofc_sparse_ref_error(lhs->src,
+			ofc_sparse_ref_error(lhs->ast.src,
 				"First index in character substring must be 1 or greater");
 
 			ofc_sema_lhs_delete(lhs);
@@ -195,7 +195,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs_substring(
 
 		if (ilast < ifirst)
 		{
-			ofc_sparse_ref_error(lhs->src,
+			ofc_sparse_ref_error(lhs->ast.src,
 				"Last index in character substring must be greater than first");
 
 			ofc_sema_lhs_delete(lhs);
@@ -208,7 +208,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs_substring(
 		if ((data_type->len > 0)
 			&& (ilast > data_type->len))
 		{
-			ofc_sparse_ref_warning(lhs->src,
+			ofc_sparse_ref_warning(lhs->ast.src,
 				"Last index in character substring out-of-bounds");
 		}
 	}
@@ -225,11 +225,11 @@ static ofc_sema_lhs_t* ofc_sema_lhs_substring(
 		return NULL;
 	}
 
-	alhs->type            = OFC_SEMA_LHS_SUBSTRING;
-	alhs->src             = lhs->src;
-	alhs->parent          = lhs;
-	alhs->substring.first = first;
-	alhs->substring.last  = last;
+	alhs->ast.type            = OFC_SEMA_LHS_SUBSTRING;
+	alhs->ast.src             = lhs->ast.src;
+	alhs->ast.parent          = lhs;
+	alhs->ast.substring.first = first;
+	alhs->ast.substring.last  = last;
 	alhs->refcnt          = 0;
 
 	return alhs;
@@ -266,11 +266,11 @@ static ofc_sema_lhs_t* ofc_sema_lhs_member(
 		return NULL;
 	}
 
-	alhs->type      = OFC_SEMA_LHS_STRUCTURE_MEMBER;
-	alhs->src       = lhs->src;
-	alhs->parent    = lhs;
+	alhs->ast.type      = OFC_SEMA_LHS_STRUCTURE_MEMBER;
+	alhs->ast.src       = lhs->ast.src;
+	alhs->ast.parent    = lhs;
 	alhs->refcnt    = 0;
-	alhs->member    = member;
+	alhs->ast.member    = member;
 	return alhs;
 }
 
@@ -453,9 +453,9 @@ static ofc_sema_lhs_t* ofc_sema__lhs(
 		return NULL;
 	}
 
-	slhs->type      = OFC_SEMA_LHS_DECL;
-	slhs->src       = lhs->src;
-	slhs->decl      = decl;
+	slhs->ast.type      = OFC_SEMA_LHS_DECL;
+	slhs->ast.src       = lhs->src;
+	slhs->ast.decl      = decl;
 	slhs->refcnt    = 0;
 
 	if (is_expr || is_dummy_arg)
@@ -542,17 +542,17 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 			sizeof(ofc_sema_lhs_t));
 	if (!lhs) return NULL;
 
-	lhs->type = OFC_SEMA_LHS_IMPLICIT_DO;
-	lhs->src  = src;
+	lhs->ast.type = OFC_SEMA_LHS_IMPLICIT_DO;
+	lhs->ast.src  = src;
 
-	lhs->implicit_do.lhs  = NULL;
-	lhs->implicit_do.iter = NULL;
-	lhs->implicit_do.init = NULL;
-	lhs->implicit_do.last = NULL;
-	lhs->implicit_do.step = NULL;
+	lhs->ast.implicit_do.lhs  = NULL;
+	lhs->ast.implicit_do.iter = NULL;
+	lhs->ast.implicit_do.init = NULL;
+	lhs->ast.implicit_do.last = NULL;
+	lhs->ast.implicit_do.step = NULL;
 
-	lhs->implicit_do.count_var = true;
-	lhs->implicit_do.count = 0;
+	lhs->ast.implicit_do.count_var = true;
+	lhs->ast.implicit_do.count = 0;
 
 	lhs->refcnt = 0;
 
@@ -571,7 +571,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 		return NULL;
 	}
 
-	if (iter_lhs->type != OFC_SEMA_LHS_DECL)
+	if (iter_lhs->ast.type != OFC_SEMA_LHS_DECL)
 	{
 		ofc_sparse_ref_error(id->iter->src,
 			"Implicit do loop iterator must be a variable");
@@ -580,18 +580,18 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 		return NULL;
 	}
 
-	if (!ofc_sema_decl_reference(iter_lhs->decl))
+	if (!ofc_sema_decl_reference(iter_lhs->ast.decl))
 	{
 		ofc_sema_lhs_delete(iter_lhs);
 		ofc_sema_lhs_delete(lhs);
 		return NULL;
 	}
 
-	lhs->implicit_do.iter = iter_lhs->decl;
+	lhs->ast.implicit_do.iter = iter_lhs->ast.decl;
 	ofc_sema_lhs_delete(iter_lhs);
 
 	const ofc_sema_type_t* iter_type
-		= ofc_sema_decl_type(lhs->implicit_do.iter);
+		= ofc_sema_decl_type(lhs->ast.implicit_do.iter);
 	if (!iter_type)
 	{
 		ofc_sema_lhs_delete(lhs);
@@ -612,16 +612,16 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 			"Using REAL in implicit do loop iterator");
 	}
 
-	lhs->implicit_do.init = ofc_sema_expr(
+	lhs->ast.implicit_do.init = ofc_sema_expr(
 		scope, id->init);
-	if (!lhs->implicit_do.init)
+	if (!lhs->ast.implicit_do.init)
 	{
 		ofc_sema_lhs_delete(lhs);
 		return NULL;
 	}
 
 	const ofc_sema_type_t* init_type
-		= ofc_sema_expr_type(lhs->implicit_do.init);
+		= ofc_sema_expr_type(lhs->ast.implicit_do.init);
 	if (!init_type)
 	{
 		ofc_sema_lhs_delete(lhs);
@@ -632,26 +632,26 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 	{
 		ofc_sema_expr_t* cast
 			= ofc_sema_expr_cast(
-				lhs->implicit_do.init, iter_type);
+				lhs->ast.implicit_do.init, iter_type);
 		if (!cast)
 		{
 			ofc_sema_lhs_delete(lhs);
 			return NULL;
 		}
 
-		lhs->implicit_do.init = cast;
+		lhs->ast.implicit_do.init = cast;
 	}
 
-	lhs->implicit_do.last = ofc_sema_expr(
+	lhs->ast.implicit_do.last = ofc_sema_expr(
 		scope, id->limit);
-	if (!lhs->implicit_do.last)
+	if (!lhs->ast.implicit_do.last)
 	{
 		ofc_sema_lhs_delete(lhs);
 		return NULL;
 	}
 
 	const ofc_sema_type_t* last_type
-		= ofc_sema_expr_type(lhs->implicit_do.last);
+		= ofc_sema_expr_type(lhs->ast.implicit_do.last);
 	if (!last_type)
 	{
 		ofc_sema_lhs_delete(lhs);
@@ -662,7 +662,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 	{
 		ofc_sema_expr_t* cast
 			= ofc_sema_expr_cast(
-				lhs->implicit_do.last, iter_type);
+				lhs->ast.implicit_do.last, iter_type);
 		if (!cast)
 		{
 			ofc_sparse_ref_error(id->limit->src,
@@ -673,21 +673,21 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 			return NULL;
 		}
 
-		lhs->implicit_do.last = cast;
+		lhs->ast.implicit_do.last = cast;
 	}
 
 	if (id->step)
 	{
-		lhs->implicit_do.step
+		lhs->ast.implicit_do.step
 			= ofc_sema_expr(scope, id->step);
-		if (!lhs->implicit_do.step)
+		if (!lhs->ast.implicit_do.step)
 		{
 			ofc_sema_lhs_delete(lhs);
 			return NULL;
 		}
 
 		const ofc_sema_type_t* step_type
-			= ofc_sema_expr_type(lhs->implicit_do.step);
+			= ofc_sema_expr_type(lhs->ast.implicit_do.step);
 		if (!step_type)
 		{
 			ofc_sema_lhs_delete(lhs);
@@ -698,7 +698,7 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 		{
 			ofc_sema_expr_t* cast
 				= ofc_sema_expr_cast(
-					lhs->implicit_do.step, iter_type);
+					lhs->ast.implicit_do.step, iter_type);
 			if (!cast)
 			{
 				ofc_sparse_ref_error(id->step->src,
@@ -709,15 +709,15 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 				return NULL;
 			}
 
-			lhs->implicit_do.step = cast;
+			lhs->ast.implicit_do.step = cast;
 		}
 	}
 
 	if (id->dlist && (id->dlist->count > 0))
 	{
-		lhs->implicit_do.lhs
+		lhs->ast.implicit_do.lhs
 			= ofc_sema_lhs_list_id(scope, id->dlist);
-		if (!lhs->implicit_do.lhs)
+		if (!lhs->ast.implicit_do.lhs)
 		{
 			ofc_sema_lhs_delete(lhs);
 			return NULL;
@@ -731,11 +731,11 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 
 	const ofc_sema_typeval_t* ctv[3];
 	ctv[0] = ofc_sema_expr_constant(
-			lhs->implicit_do.init);
+			lhs->ast.implicit_do.init);
 	ctv[1] = ofc_sema_expr_constant(
-			lhs->implicit_do.last);
+			lhs->ast.implicit_do.last);
 	ctv[2] = ofc_sema_expr_constant(
-			lhs->implicit_do.step);
+			lhs->ast.implicit_do.step);
 
 	long double first, last, step = 1.0;
 	if (ofc_sema_typeval_get_real(ctv[0], &first)
@@ -752,18 +752,18 @@ static ofc_sema_lhs_t* ofc_sema_lhs__implicit_do(
 		}
 		dcount += 1.0;
 
-		lhs->implicit_do.count = (unsigned)dcount;
-		if ((long double)lhs->implicit_do.count != dcount)
+		lhs->ast.implicit_do.count = (unsigned)dcount;
+		if ((long double)lhs->ast.implicit_do.count != dcount)
 		{
 			ofc_sema_lhs_delete(lhs);
 			return NULL;
 		}
-		lhs->implicit_do.count_var = false;
+		lhs->ast.implicit_do.count_var = false;
 	}
 	else
 	{
-		lhs->implicit_do.count_var = true;
-		lhs->implicit_do.count     = 0;
+		lhs->ast.implicit_do.count_var = true;
+		lhs->ast.implicit_do.count     = 0;
 	}
 
 	return lhs;
@@ -776,7 +776,7 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 	if (!lhs)
 		return NULL;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
 		case OFC_SEMA_LHS_ARRAY_INDEX:
@@ -811,7 +811,7 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 				ofc_sema_array_index_t* index
 					= ofc_sema_array_index_from_offset(
-						lhs->decl, (offset / base_count));
+						lhs->ast.decl, (offset / base_count));
 				if (!index) return NULL;
 
 				ofc_sema_lhs_t* nlhs
@@ -887,11 +887,11 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 			ofc_sema_array_index_t* index
 				= ofc_sema_array_slice_index_from_offset(
-					lhs->slice.slice, (offset / base_count));
+					lhs->ast.slice.slice, (offset / base_count));
 			if (!index) return NULL;
 
 			ofc_sema_lhs_t* nlhs
-				= ofc_sema_lhs_index(lhs->parent, index);
+				= ofc_sema_lhs_index(lhs->ast.parent, index);
 			if (!nlhs)
 			{
 				ofc_sema_array_index_delete(index);
@@ -913,12 +913,12 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 		case OFC_SEMA_LHS_IMPLICIT_DO:
 		{
-			if (!lhs->implicit_do.iter)
+			if (!lhs->ast.implicit_do.iter)
 				return NULL;
 
 			unsigned sub_elem_count;
 			if (!ofc_sema_lhs_list_elem_count(
-				lhs->implicit_do.lhs, &sub_elem_count))
+				lhs->ast.implicit_do.lhs, &sub_elem_count))
 				return NULL;
 
 			if (sub_elem_count == 0)
@@ -930,9 +930,9 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 			const ofc_sema_typeval_t* ctv[2];
 			ctv[0] = ofc_sema_expr_constant(
-					lhs->implicit_do.init);
+					lhs->ast.implicit_do.init);
 			ctv[1] = ofc_sema_expr_constant(
-					lhs->implicit_do.step);
+					lhs->ast.implicit_do.step);
 
 			long double first, step = 1.0;
 			if (!ofc_sema_typeval_get_real(ctv[0], &first))
@@ -951,7 +951,7 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 			ofc_sema_typeval_t* init
 				= ofc_sema_typeval_cast(
-					dinit, lhs->implicit_do.iter->type);
+					dinit, lhs->ast.implicit_do.iter->ast.type);
 			ofc_sema_typeval_delete(dinit);
 			if (!init) return NULL;
 
@@ -966,10 +966,10 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 			ofc_sema_lhs_t* rval = NULL;
 			unsigned e = sub_offset;
 			unsigned i;
-			for (i = 0; i < lhs->implicit_do.lhs->count; i++)
+			for (i = 0; i < lhs->ast.implicit_do.lhs->count; i++)
 			{
 				ofc_sema_lhs_t* lhs_dummy
-					= lhs->implicit_do.lhs->lhs[i];
+					= lhs->ast.implicit_do.lhs->lhs[i];
 
 				unsigned elem_count;
 				if (!ofc_sema_lhs_elem_count(
@@ -981,7 +981,7 @@ ofc_sema_lhs_t* ofc_sema_lhs_elem_get(
 
 					ofc_sema_lhs_t* body
 						= ofc_sema_lhs_copy_replace(
-							lhs_dummy, lhs->implicit_do.iter, iter_expr);
+							lhs_dummy, lhs->ast.implicit_do.iter, iter_expr);
 					if (!body) return NULL;
 
 					rval = ofc_sema_lhs_elem_get(
@@ -1024,37 +1024,37 @@ ofc_sema_lhs_t* ofc_sema_lhs_copy_replace(
 
 	*copy = *lhs;
 
-	if (lhs->type == OFC_SEMA_LHS_DECL)
+	if (lhs->ast.type == OFC_SEMA_LHS_DECL)
 	{
-		if (!ofc_sema_decl_reference(lhs->decl))
+		if (!ofc_sema_decl_reference(lhs->ast.decl))
 		{
 			free(copy);
 			return NULL;
 		}
 	}
-	else if (lhs->type == OFC_SEMA_LHS_IMPLICIT_DO)
+	else if (lhs->ast.type == OFC_SEMA_LHS_IMPLICIT_DO)
 	{
-		copy->implicit_do.lhs
+		copy->ast.implicit_do.lhs
 			= ofc_sema_lhs_list_copy_replace(
-				lhs->implicit_do.lhs, replace, with);
-		copy->implicit_do.iter
-			= (ofc_sema_decl_reference(lhs->implicit_do.iter)
-				? lhs->implicit_do.iter : NULL);
-		copy->implicit_do.init
+				lhs->ast.implicit_do.lhs, replace, with);
+		copy->ast.implicit_do.iter
+			= (ofc_sema_decl_reference(lhs->ast.implicit_do.iter)
+				? lhs->ast.implicit_do.iter : NULL);
+		copy->ast.implicit_do.init
 			= ofc_sema_expr_copy_replace(
-				lhs->implicit_do.init, replace, with);
-		copy->implicit_do.last
+				lhs->ast.implicit_do.init, replace, with);
+		copy->ast.implicit_do.last
 			= ofc_sema_expr_copy_replace(
-				lhs->implicit_do.last, replace, with);
-		copy->implicit_do.step
+				lhs->ast.implicit_do.last, replace, with);
+		copy->ast.implicit_do.step
 			= ofc_sema_expr_copy_replace(
-				lhs->implicit_do.step, replace, with);
-		if (!copy->implicit_do.lhs
-			|| !copy->implicit_do.iter
-			|| !copy->implicit_do.init
-			|| !copy->implicit_do.last
-			|| (lhs->implicit_do.step
-				&& !copy->implicit_do.step))
+				lhs->ast.implicit_do.step, replace, with);
+		if (!copy->ast.implicit_do.lhs
+			|| !copy->ast.implicit_do.iter
+			|| !copy->ast.implicit_do.init
+			|| !copy->ast.implicit_do.last
+			|| (lhs->ast.implicit_do.step
+				&& !copy->ast.implicit_do.step))
 		{
 			ofc_sema_lhs_delete(copy);
 			return NULL;
@@ -1062,12 +1062,12 @@ ofc_sema_lhs_t* ofc_sema_lhs_copy_replace(
 	}
 	else
 	{
-		switch (lhs->type)
+		switch (lhs->ast.type)
 		{
 			case OFC_SEMA_LHS_ARRAY_INDEX:
-				copy->index = ofc_sema_array_index_copy_replace(
-					lhs->index, replace, with);
-				if (!copy->index)
+				copy->ast.index = ofc_sema_array_index_copy_replace(
+					lhs->ast.index, replace, with);
+				if (!copy->ast.index)
 				{
 					free(copy);
 					return NULL;
@@ -1075,45 +1075,45 @@ ofc_sema_lhs_t* ofc_sema_lhs_copy_replace(
 				break;
 
 			case OFC_SEMA_LHS_ARRAY_SLICE:
-				copy->slice.slice
+				copy->ast.slice.slice
 					= ofc_sema_array_slice_copy_replace(
-						lhs->slice.slice, replace, with);
+						lhs->ast.slice.slice, replace, with);
 
-				copy->slice.dims
+				copy->ast.slice.dims
 					= ofc_sema_array_copy_replace(
-						lhs->slice.dims, replace, with);
-				if (!copy->slice.slice
-					|| !copy->slice.dims)
+						lhs->ast.slice.dims, replace, with);
+				if (!copy->ast.slice.slice
+					|| !copy->ast.slice.dims)
 				{
-					ofc_sema_array_slice_delete(copy->slice.slice);
-					ofc_sema_array_delete(copy->slice.dims);
+					ofc_sema_array_slice_delete(copy->ast.slice.slice);
+					ofc_sema_array_delete(copy->ast.slice.dims);
 					free(copy);
 					return NULL;
 				}
 				break;
 
 			case OFC_SEMA_LHS_SUBSTRING:
-				if (lhs->substring.first)
+				if (lhs->ast.substring.first)
 				{
-					copy->substring.first
+					copy->ast.substring.first
 						= ofc_sema_expr_copy_replace(
-							lhs->substring.first, replace, with);
-					if (!copy->substring.first)
+							lhs->ast.substring.first, replace, with);
+					if (!copy->ast.substring.first)
 					{
 						free(copy);
 						return NULL;
 					}
 				}
 
-				if (lhs->substring.last)
+				if (lhs->ast.substring.last)
 				{
-					copy->substring.last
+					copy->ast.substring.last
 						= ofc_sema_expr_copy_replace(
-							lhs->substring.last, replace, with);
-					if (!copy->substring.last)
+							lhs->ast.substring.last, replace, with);
+					if (!copy->ast.substring.last)
 					{
 						ofc_sema_expr_delete(
-							copy->substring.first);
+							copy->ast.substring.first);
 						free(copy);
 						return NULL;
 					}
@@ -1128,9 +1128,9 @@ ofc_sema_lhs_t* ofc_sema_lhs_copy_replace(
 				return NULL;
 		}
 
-		copy->parent = ofc_sema_lhs_copy_replace(
-			lhs->parent, replace, with);
-		if (!copy->parent)
+		copy->ast.parent = ofc_sema_lhs_copy_replace(
+			lhs->ast.parent, replace, with);
+		if (!copy->ast.parent)
 		{
 			ofc_sema_lhs_delete(copy);
 			return NULL;
@@ -1172,50 +1172,50 @@ void ofc_sema_lhs_delete(
 		return;
 	}
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			ofc_sema_decl_delete(lhs->decl);
+			ofc_sema_decl_delete(lhs->ast.decl);
 			break;
 
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 		case OFC_SEMA_LHS_SUBSTRING:
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			ofc_sema_lhs_delete(lhs->parent);
+			ofc_sema_lhs_delete(lhs->ast.parent);
 			break;
 
 		default:
 			break;
 	}
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_ARRAY_INDEX:
-			ofc_sema_array_index_delete(lhs->index);
+			ofc_sema_array_index_delete(lhs->ast.index);
 			break;
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
-			ofc_sema_array_slice_delete(lhs->slice.slice);
-			ofc_sema_array_delete(lhs->slice.dims);
+			ofc_sema_array_slice_delete(lhs->ast.slice.slice);
+			ofc_sema_array_delete(lhs->ast.slice.dims);
 			break;
 
 		case OFC_SEMA_LHS_SUBSTRING:
-			if (lhs->substring.last != lhs->substring.first)
-				ofc_sema_expr_delete(lhs->substring.last);
-			ofc_sema_expr_delete(lhs->substring.first);
+			if (lhs->ast.substring.last != lhs->ast.substring.first)
+				ofc_sema_expr_delete(lhs->ast.substring.last);
+			ofc_sema_expr_delete(lhs->ast.substring.first);
 			break;
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			ofc_sema_decl_delete(lhs->member);
+			ofc_sema_decl_delete(lhs->ast.member);
 			break;
 
 		case OFC_SEMA_LHS_IMPLICIT_DO:
-			ofc_sema_lhs_list_delete(lhs->implicit_do.lhs);
-			ofc_sema_decl_delete(lhs->implicit_do.iter);
-			ofc_sema_expr_delete(lhs->implicit_do.init);
-			ofc_sema_expr_delete(lhs->implicit_do.last);
-			ofc_sema_expr_delete(lhs->implicit_do.step);
+			ofc_sema_lhs_list_delete(lhs->ast.implicit_do.lhs);
+			ofc_sema_decl_delete(lhs->ast.implicit_do.iter);
+			ofc_sema_expr_delete(lhs->ast.implicit_do.init);
+			ofc_sema_expr_delete(lhs->ast.implicit_do.last);
+			ofc_sema_expr_delete(lhs->ast.implicit_do.step);
 			break;
 
 		default:
@@ -1238,14 +1238,14 @@ bool ofc_sema_lhs_init(
 		if (!init->array)
 			return true;
 		return ofc_sema_lhs_init_array(
-			lhs, NULL, init->array->count,
-			(const ofc_sema_expr_t**)init->array->expr);
+			lhs, NULL, init->array->ast.count,
+			(const ofc_sema_expr_t**)init->array->ast.expr);
 	}
 
 	ofc_sema_decl_t* decl
 		= ofc_sema_lhs_decl(lhs);
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
 			return ofc_sema_decl_init(
@@ -1255,7 +1255,7 @@ bool ofc_sema_lhs_init(
 		{
 			unsigned offset;
 			if (!ofc_sema_array_index_offset(
-				decl, lhs->index, &offset))
+				decl, lhs->ast.index, &offset))
 				return false;
 
 			return ofc_sema_decl_init_offset(
@@ -1265,12 +1265,12 @@ bool ofc_sema_lhs_init(
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
 		{
 			ofc_sema_structure_t* structure
-				= ofc_sema_lhs_structure(lhs->parent);
+				= ofc_sema_lhs_structure(lhs->ast.parent);
 			if (!structure) return false;
 
 			unsigned offset;
 			if (!ofc_sema_structure_member_offset(
-				structure, lhs->member, &offset))
+				structure, lhs->ast.member, &offset))
 				return false;
 
 			return ofc_sema_decl_init_offset(
@@ -1279,9 +1279,9 @@ bool ofc_sema_lhs_init(
 
 		case OFC_SEMA_LHS_SUBSTRING:
 			return ofc_sema_lhs_init_substring(
-				lhs->parent, init,
-				lhs->substring.first,
-				lhs->substring.last);
+				lhs->ast.parent, init,
+				lhs->ast.substring.first,
+				lhs->ast.substring.last);
 
 		/* TODO - Initialize all LHS types. */
 
@@ -1305,10 +1305,10 @@ bool ofc_sema_lhs_init_array(
 		return true;
 
 	/* TODO - Support initializing array slices. */
-	if (lhs->type == OFC_SEMA_LHS_ARRAY_SLICE)
+	if (lhs->ast.type == OFC_SEMA_LHS_ARRAY_SLICE)
 		return false;
 
-	if (lhs->type != OFC_SEMA_LHS_DECL)
+	if (lhs->ast.type != OFC_SEMA_LHS_DECL)
 		return false;
 
 	return ofc_sema_decl_init_array(
@@ -1328,7 +1328,7 @@ bool ofc_sema_lhs_init_substring(
 	ofc_sema_decl_t* decl
 		= ofc_sema_lhs_decl(lhs);
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
 			return ofc_sema_decl_init_substring(
@@ -1338,7 +1338,7 @@ bool ofc_sema_lhs_init_substring(
 		{
 			unsigned offset;
 			if (!ofc_sema_array_index_offset(
-				decl, lhs->index, &offset))
+				decl, lhs->ast.index, &offset))
 				return false;
 
 			return ofc_sema_decl_init_substring_offset(
@@ -1348,12 +1348,12 @@ bool ofc_sema_lhs_init_substring(
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
 		{
 			ofc_sema_structure_t* structure
-				= ofc_sema_lhs_structure(lhs->parent);
+				= ofc_sema_lhs_structure(lhs->ast.parent);
 			if (!structure) return false;
 
 			unsigned offset;
 			if (!ofc_sema_structure_member_offset(
-				structure, lhs->member, &offset))
+				structure, lhs->ast.member, &offset))
 				return false;
 
 			return ofc_sema_decl_init_substring_offset(
@@ -1374,10 +1374,10 @@ bool ofc_sema_lhs_is_array(
 	if (!lhs)
 		return false;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			return ofc_sema_decl_is_array(lhs->decl);
+			return ofc_sema_decl_is_array(lhs->ast.decl);
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 			return true;
@@ -1387,8 +1387,8 @@ bool ofc_sema_lhs_is_array(
 			return false;
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			return (ofc_sema_decl_is_array(lhs->member)
-				|| ofc_sema_lhs_is_array(lhs->parent));
+			return (ofc_sema_decl_is_array(lhs->ast.member)
+				|| ofc_sema_lhs_is_array(lhs->ast.parent));
 
 		default:
 			break;
@@ -1403,18 +1403,18 @@ bool ofc_sema_lhs_is_structure(
 	if (!lhs)
 		return false;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			return ofc_sema_decl_is_structure(lhs->decl);
+			return ofc_sema_decl_is_structure(lhs->ast.decl);
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_SUBSTRING:
-			return ofc_sema_lhs_is_structure(lhs->parent);
+			return ofc_sema_lhs_is_structure(lhs->ast.parent);
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			return ofc_sema_decl_is_structure(lhs->member);
+			return ofc_sema_decl_is_structure(lhs->ast.member);
 
 		default:
 			break;
@@ -1429,10 +1429,10 @@ bool ofc_sema_lhs_is_parameter(
 	if (!lhs)
 		return false;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			return ofc_sema_decl_is_parameter(lhs->decl);
+			return ofc_sema_decl_is_parameter(lhs->ast.decl);
 
 		/* TODO - Calculate properly for indices, slices, substrings, etc. */
 
@@ -1450,19 +1450,19 @@ const ofc_sema_array_t* ofc_sema_lhs_array(
 	if (!lhs)
 		return NULL;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			if (!lhs->decl) return NULL;
-			return lhs->decl->array;
+			if (!lhs->ast.decl) return NULL;
+			return lhs->ast.decl->ast.array;
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			if (lhs->member && lhs->member->array)
-				return lhs->member->array;
-			return ofc_sema_lhs_array(lhs->parent);
+			if (lhs->ast.member && lhs->ast.member->ast.array)
+				return lhs->ast.member->ast.array;
+			return ofc_sema_lhs_array(lhs->ast.parent);
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
-			return lhs->slice.dims;
+			return lhs->ast.slice.dims;
 
 		default:
 			break;
@@ -1477,20 +1477,20 @@ ofc_sema_structure_t* ofc_sema_lhs_structure(
 	if (!lhs)
 		return NULL;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			if (!lhs->decl) return NULL;
-			return lhs->decl->structure;
+			if (!lhs->ast.decl) return NULL;
+			return lhs->ast.decl->ast.structure;
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_SUBSTRING:
-			return ofc_sema_lhs_structure(lhs->parent);
+			return ofc_sema_lhs_structure(lhs->ast.parent);
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			if (!lhs->member) return NULL;
-			return lhs->member->structure;
+			if (!lhs->ast.member) return NULL;
+			return lhs->ast.member->ast.structure;
 
 		default:
 			break;
@@ -1505,14 +1505,14 @@ ofc_sema_typeval_t* ofc_sema_lhs_parameter(
 	if (!lhs)
 		return NULL;
 
-	if (lhs->type != OFC_SEMA_LHS_DECL)
+	if (lhs->ast.type != OFC_SEMA_LHS_DECL)
 	{
 		/* TODO - Handle more complex cases like a constant index
 		          into a PARAMETER array. */
 		return NULL;
 	}
 
-	const ofc_sema_decl_t* decl = lhs->decl;
+	const ofc_sema_decl_t* decl = lhs->ast.decl;
 
 	bool complete;
 	if (!decl || !decl->is_parameter
@@ -1524,7 +1524,7 @@ ofc_sema_typeval_t* ofc_sema_lhs_parameter(
 	if (ofc_sema_decl_is_composite(decl))
 		return NULL;
 
-	if (decl->init.is_substring)
+	if (decl->ast.init.is_substring)
 	{
 		/* TODO - Handle incomplete substring PARAMETERS. */
 		return NULL;
@@ -1532,7 +1532,7 @@ ofc_sema_typeval_t* ofc_sema_lhs_parameter(
 
 	return ofc_sema_typeval_copy(
 		ofc_sema_expr_constant(
-			decl->init.expr));
+			decl->ast.init.expr));
 }
 
 
@@ -1543,28 +1543,28 @@ bool ofc_sema_lhs_mark_used(
 	if (!lhs)
 		return false;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			if (!ofc_sema_decl_type_finalize(lhs->decl)
-				|| !ofc_sema_decl_mark_used(lhs->decl, written, read))
+			if (!ofc_sema_decl_type_finalize(lhs->ast.decl)
+				|| !ofc_sema_decl_mark_used(lhs->ast.decl, written, read))
 				return false;
 			return true;
 
 		case OFC_SEMA_LHS_IMPLICIT_DO:
 			return ofc_sema_lhs_list_mark_used(
-				lhs->implicit_do.lhs,
+				lhs->ast.implicit_do.lhs,
 				written, read);
 
 		default:
 			break;
 	}
 
-	if (!lhs->parent)
+	if (!lhs->ast.parent)
 		return false;
 
 	if (!ofc_sema_lhs_mark_used(
-		lhs->parent, written, read))
+		lhs->ast.parent, written, read))
 		return false;
 
 	return true;
@@ -1581,27 +1581,27 @@ bool ofc_sema_lhs_compare(
 	if (a == b)
 		return true;
 
-	if (a->type != b->type)
+	if (a->ast.type != b->ast.type)
 		return false;
 
-	if (a->type == OFC_SEMA_LHS_DECL)
-		return (a->decl == b->decl);
+	if (a->ast.type == OFC_SEMA_LHS_DECL)
+		return (a->ast.decl == b->ast.decl);
 
 	if (!ofc_sema_lhs_compare(
-		a->parent, b->parent))
+		a->ast.parent, b->ast.parent))
 		return false;
 
-	switch (a->type)
+	switch (a->ast.type)
 	{
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 			if (!ofc_sema_array_index_compare(
-				a->index, b->index))
+				a->ast.index, b->ast.index))
 				return false;
 			break;
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 			if (!ofc_sema_array_slice_compare(
-				a->slice.slice, b->slice.slice))
+				a->ast.slice.slice, b->ast.slice.slice))
 				return false;
 			break;
 
@@ -1619,16 +1619,16 @@ ofc_sema_decl_t* ofc_sema_lhs_decl(
 	if (!lhs)
 		return NULL;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			return lhs->decl;
+			return lhs->ast.decl;
 
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
 		case OFC_SEMA_LHS_SUBSTRING:
-			return ofc_sema_lhs_decl(lhs->parent);
+			return ofc_sema_lhs_decl(lhs->ast.parent);
 
 		default:
 			break;
@@ -1643,22 +1643,22 @@ const ofc_sema_type_t* ofc_sema_lhs_type(
 	if (!lhs)
 		return NULL;
 
-	switch (lhs->type)
+	switch (lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			return ofc_sema_decl_type(lhs->decl);
+			return ofc_sema_decl_type(lhs->ast.decl);
 
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
-			return ofc_sema_decl_type(lhs->member);
+			return ofc_sema_decl_type(lhs->ast.member);
 
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_ARRAY_SLICE:
-			return ofc_sema_lhs_type(lhs->parent);
+			return ofc_sema_lhs_type(lhs->ast.parent);
 
 		case OFC_SEMA_LHS_SUBSTRING:
 			{
-				ofc_sema_expr_t* first = lhs->substring.first;
-				ofc_sema_expr_t* last  = lhs->substring.last;
+				ofc_sema_expr_t* first = lhs->ast.substring.first;
+				ofc_sema_expr_t* last  = lhs->ast.substring.last;
 
 				bool len_var = true;
 				unsigned len = 0;
@@ -1688,7 +1688,7 @@ const ofc_sema_type_t* ofc_sema_lhs_type(
 					len_var = false;
 				}
 				const ofc_sema_type_t* parent_type
-					= ofc_sema_lhs_type(lhs->parent);
+					= ofc_sema_lhs_type(lhs->ast.parent);
 
 				return ofc_sema_type_create_character(
 					parent_type->kind, len, len_var);
@@ -1706,18 +1706,18 @@ bool ofc_sema_lhs_elem_count(
 	if (!lhs) return false;
 
 	unsigned ecount = 1;
-	if (lhs->type == OFC_SEMA_LHS_IMPLICIT_DO)
+	if (lhs->ast.type == OFC_SEMA_LHS_IMPLICIT_DO)
 	{
-		if (lhs->implicit_do.count_var)
+		if (lhs->ast.implicit_do.count_var)
 			return false;
 
 		unsigned idecount;
 		if (!ofc_sema_lhs_list_elem_count(
-			lhs->implicit_do.lhs, &idecount))
+			lhs->ast.implicit_do.lhs, &idecount))
 			return false;
 		ecount *= idecount;
 
-		ecount *= lhs->implicit_do.count;
+		ecount *= lhs->ast.implicit_do.count;
 	}
 
 	const ofc_sema_array_t* array
@@ -1752,51 +1752,51 @@ bool ofc_sema_lhs_print(
 {
 	if (!cs || !lhs) return false;
 
-	switch(lhs->type)
+	switch(lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_ARRAY_INDEX:
 		case OFC_SEMA_LHS_ARRAY_SLICE:
 		case OFC_SEMA_LHS_STRUCTURE_MEMBER:
 		case OFC_SEMA_LHS_SUBSTRING:
 			if (!ofc_sema_lhs_print(
-				cs, lhs->parent))
+				cs, lhs->ast.parent))
 				return false;
 			break;
 		default:
 			break;
 	}
 
-	switch(lhs->type)
+	switch(lhs->ast.type)
 	{
 		case OFC_SEMA_LHS_DECL:
-			if (!ofc_sema_decl_print_name(cs, lhs->decl))
+			if (!ofc_sema_decl_print_name(cs, lhs->ast.decl))
 				return false;
 			break;
 
 		case OFC_SEMA_LHS_ARRAY_INDEX:
-			if (!ofc_sema_array_index_print(cs, lhs->index))
+			if (!ofc_sema_array_index_print(cs, lhs->ast.index))
 				return false;
 			break;
 
 		case OFC_SEMA_LHS_ARRAY_SLICE:
-			if (!ofc_sema_array_slice_print(cs, lhs->slice.slice))
+			if (!ofc_sema_array_slice_print(cs, lhs->ast.slice.slice))
 				return false;
 			break;
 
 		case OFC_SEMA_LHS_SUBSTRING:
 			if (!ofc_colstr_atomic_writef(cs, "("))
 				return false;
-			if (lhs->substring.first
+			if (lhs->ast.substring.first
 				&& !ofc_sema_expr_print(cs,
-					lhs->substring.first))
+					lhs->ast.substring.first))
 				return false;
 
 			if (!ofc_colstr_atomic_writef(cs, ":"))
 				return false;
 
-			if (lhs->substring.last
+			if (lhs->ast.substring.last
 				&& !ofc_sema_expr_print(cs,
-					lhs->substring.last))
+					lhs->ast.substring.last))
 				return false;
 
 			if (!ofc_colstr_atomic_writef(cs, ")"))
@@ -1807,36 +1807,36 @@ bool ofc_sema_lhs_print(
 			{
 				char member = '%';
 				ofc_sema_structure_t* structure
-					= ofc_sema_lhs_structure(lhs->parent);
+					= ofc_sema_lhs_structure(lhs->ast.parent);
 				if (!ofc_sema_structure_is_derived_type(structure))
 					member = '.';
 
 				if (!ofc_colstr_atomic_writef(cs, "%c", member)
-					|| !ofc_sema_decl_print_name(cs, lhs->member))
+					|| !ofc_sema_decl_print_name(cs, lhs->ast.member))
 						return false;
 			}
 			break;
 
 		case OFC_SEMA_LHS_IMPLICIT_DO:
 			if (!ofc_colstr_atomic_writef(cs, "(")
-				|| !ofc_sema_lhs_list_print(cs, lhs->implicit_do.lhs)
+				|| !ofc_sema_lhs_list_print(cs, lhs->ast.implicit_do.lhs)
 				|| !ofc_colstr_atomic_writef(cs, ",")
 				|| !ofc_colstr_atomic_writef(cs, " ")
-				|| !ofc_sema_decl_print_name(cs, lhs->implicit_do.iter)
+				|| !ofc_sema_decl_print_name(cs, lhs->ast.implicit_do.iter)
 				|| !ofc_colstr_atomic_writef(cs, " ")
 				|| !ofc_colstr_atomic_writef(cs, "=")
 				|| !ofc_colstr_atomic_writef(cs, " ")
-				|| !ofc_sema_expr_print(cs, lhs->implicit_do.init)
+				|| !ofc_sema_expr_print(cs, lhs->ast.implicit_do.init)
 				|| !ofc_colstr_atomic_writef(cs, ",")
 				|| !ofc_colstr_atomic_writef(cs, " ")
-				|| !ofc_sema_expr_print(cs, lhs->implicit_do.last))
+				|| !ofc_sema_expr_print(cs, lhs->ast.implicit_do.last))
 				return false;
 
-			if (lhs->implicit_do.step)
+			if (lhs->ast.implicit_do.step)
 			{
 				if (!ofc_colstr_atomic_writef(cs, ",")
 					|| !ofc_colstr_atomic_writef(cs, " ")
-					|| !ofc_sema_expr_print(cs, lhs->implicit_do.step))
+					|| !ofc_sema_expr_print(cs, lhs->ast.implicit_do.step))
 					return false;
 			}
 

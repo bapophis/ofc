@@ -40,8 +40,13 @@ typedef struct
 
 typedef struct
 {
-	unsigned               count;
+	unsigned count;
 	ofc_sema_dummy_arg_t** dummy_arg;
+} ofc_sema_dummy_arg_list_ast_t;
+
+typedef struct
+{
+	ofc_sema_dummy_arg_list_ast_t ast;
 } ofc_sema_dummy_arg_list_t;
 
 ofc_sema_dummy_arg_t* ofc_sema_dummy_arg(

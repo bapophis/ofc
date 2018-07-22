@@ -509,6 +509,7 @@ ofc_sema_stmt_list_t* ofc_sema_stmt_list_create(void)
 		= (ofc_sema_stmt_list_t*)malloc(
 			sizeof(ofc_sema_stmt_list_t));
 	if (!list) return NULL;
+	
 
 	list->count = 0;
 	list->stmt  = NULL;
@@ -1456,7 +1457,7 @@ bool ofc_sema_stmt_list_print(
 					label_map, stmt_list->stmt[i]);
 			if (label)
 			{
-				unsigned label_num = label->number;
+				unsigned label_num = label->ast.number;
 				if (!ofc_colstr_newline(cs, indent, &label_num))
 					return false;
 			}

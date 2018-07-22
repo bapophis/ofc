@@ -35,10 +35,10 @@ static ofc_sema_stmt_t* ofc_sema_stmt_go_to__assigned(
 	}
 
 	unsigned i;
-	for (i = 0; i < s.go_to.allow->count; i++)
+	for (i = 0; i < s.go_to.allow->ast.count; i++)
 	{
 		ofc_sema_expr_t* expr
-			= s.go_to.allow->expr[i];
+			= s.go_to.allow->ast.expr[i];
 
 		if (!ofc_sema_expr_is_constant(expr))
 		{
@@ -56,10 +56,10 @@ static ofc_sema_stmt_t* ofc_sema_stmt_go_to__assigned(
 			= ofc_sema_expr_constant(s.go_to.label);
 
 		bool match = false;
-		for (i = 0; i < s.go_to.allow->count; i++)
+		for (i = 0; i < s.go_to.allow->ast.count; i++)
 		{
 			ofc_sema_expr_t* expr
-				= s.go_to.allow->expr[i];
+				= s.go_to.allow->ast.expr[i];
 
 			const ofc_sema_typeval_t* ctv
 				= ofc_sema_expr_constant(expr);
@@ -138,10 +138,10 @@ static ofc_sema_stmt_t* ofc_sema_stmt_go_to__computed(
 	}
 
 	unsigned i;
-	for (i = 0; i < s.go_to_comp.label->count; i++)
+	for (i = 0; i < s.go_to_comp.label->ast.count; i++)
 	{
 		ofc_sema_expr_t* expr
-			= s.go_to_comp.label->expr[i];
+			= s.go_to_comp.label->ast.expr[i];
 
 		if (!ofc_sema_expr_is_constant(expr))
 		{

@@ -24,9 +24,14 @@ typedef struct
 
 typedef struct
 {
+	ofc_sema_external_t** external;
+} ofc_sema_external_list_ast_t;
+
+typedef struct
+{
 	bool case_sensitive;
 	unsigned count;
-	ofc_sema_external_t** external;
+	ofc_sema_external_list_ast_t ast;
 	ofc_hashmap_t* map;
 } ofc_sema_external_list_t;
 

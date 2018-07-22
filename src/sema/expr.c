@@ -292,8 +292,8 @@ ofc_sema_expr_t* ofc_sema_expr_copy_replace(
 
 		case OFC_SEMA_EXPR_LHS:
 			if (with && expr->lhs
-				&& (expr->lhs->type == OFC_SEMA_LHS_DECL)
-				&& (expr->lhs->decl == replace))
+				&& (expr->lhs->ast.type == OFC_SEMA_LHS_DECL)
+				&& (expr->lhs->ast.decl == replace))
 			{
 				ofc_sema_expr_delete(copy);
 				return ofc_sema_expr_copy(with);
@@ -1123,7 +1123,7 @@ static ofc_sema_expr_t* ofc_sema_expr__function(
 		return NULL;
 
 	/* TODO - Defer checking of arguments for a later pass? */
-	const ofc_sema_scope_t* fscope = decl->func;
+	const ofc_sema_scope_t* fscope = decl->ast.func;
 	if (fscope)
 	{
 		unsigned acount = 0;
@@ -1131,7 +1131,7 @@ static ofc_sema_expr_t* ofc_sema_expr__function(
 			acount = name->array.index->count;
 
 		if (fscope->args
-			? (acount != fscope->args->count)
+			? (acount != fscope->args->ast.count)
 			: (acount != 0))
 		{
 			ofc_sparse_ref_error(name->src,
@@ -1260,7 +1260,7 @@ static ofc_sema_expr_t* ofc_sema_expr__variable(
 	const ofc_sema_intrinsic_t* intrinsic = NULL;
 	if (decl && decl->is_intrinsic)
 	{
-		intrinsic = decl->intrinsic;
+		intrinsic = decl->ast.intrinsic;
 	}
 	else if (!decl)
 	{
@@ -1472,7 +1472,7 @@ ofc_sema_expr_t* ofc_sema_expr_dummy_arg(
 
 				if (decl && decl->is_intrinsic)
 				{
-					if (!ofc_sema_intrinsic_is_specific(decl->intrinsic))
+					if (!ofc_sema_intrinsic_is_specific(decl->ast.intrinsic))
 					{
 						ofc_sparse_ref_error(e->src,
 							"Generic intrinsic function '%.*s' can't be passed as an argument",
@@ -1568,7 +1568,7 @@ static ofc_sema_expr_t* ofc_sema_expr__implicit_do(
 		return NULL;
 	}
 
-	if (iter_lhs->type != OFC_SEMA_LHS_DECL)
+	if (iter_lhs->ast.type != OFC_SEMA_LHS_DECL)
 	{
 		ofc_sparse_ref_error(id->iter->src,
 			"Implicit do loop iterator must be a variable");
@@ -1577,14 +1577,14 @@ static ofc_sema_expr_t* ofc_sema_expr__implicit_do(
 		return NULL;
 	}
 
-	if (!ofc_sema_decl_reference(iter_lhs->decl))
+	if (!ofc_sema_decl_reference(iter_lhs->ast.decl))
 	{
 		ofc_sema_lhs_delete(iter_lhs);
 		ofc_sema_expr_delete(expr);
 		return NULL;
 	}
 
-	expr->implicit_do.iter = iter_lhs->decl;
+	expr->implicit_do.iter = iter_lhs->ast.decl;
 	ofc_sema_lhs_delete(iter_lhs);
 
 	const ofc_sema_type_t* iter_type
@@ -1784,7 +1784,7 @@ ofc_sema_expr_t* ofc_sema_expr_wrap_lhs(
 	}
 
 	expr->lhs = lhs;
-	expr->src = expr->lhs->src;
+	expr->src = expr->lhs->ast.src;
 
 	return expr;
 }
@@ -2038,7 +2038,7 @@ ofc_sema_expr_t* ofc_sema_expr_elem_get(
 
 			ofc_sema_typeval_t* init
 				= ofc_sema_typeval_cast(
-					dinit, expr->implicit_do.iter->type);
+					dinit, expr->implicit_do.iter->ast.type);
 			ofc_sema_typeval_delete(dinit);
 			if (!init) return NULL;
 
@@ -2053,10 +2053,10 @@ ofc_sema_expr_t* ofc_sema_expr_elem_get(
 			ofc_sema_expr_t* rval = NULL;
 			unsigned e = sub_offset;
 			unsigned i;
-			for (i = 0; i < expr->implicit_do.expr->count; i++)
+			for (i = 0; i < expr->implicit_do.expr->ast.count; i++)
 			{
 				ofc_sema_expr_t* expr_dummy
-					= expr->implicit_do.expr->expr[i];
+					= expr->implicit_do.expr->ast.expr[i];
 
 				unsigned elem_count;
 				if (!ofc_sema_expr_elem_count(
@@ -2483,8 +2483,8 @@ ofc_sema_expr_list_t* ofc_sema_expr_list_create(void)
 			sizeof(ofc_sema_expr_list_t));
 	if (!list) return NULL;
 
-	list->count = 0;
-	list->expr  = NULL;
+	list->ast.count = 0;
+	list->ast.expr  = NULL;
 	return list;
 }
 
@@ -2495,9 +2495,9 @@ void ofc_sema_expr_list_delete(
 		return;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
-		ofc_sema_expr_delete(list->expr[i]);
-	free(list->expr);
+	for (i = 0; i < list->ast.count; i++)
+		ofc_sema_expr_delete(list->ast.expr[i]);
+	free(list->ast.expr);
 
 	free(list);
 }
@@ -2514,24 +2514,24 @@ ofc_sema_expr_list_t* ofc_sema_expr_list_copy_replace(
 			sizeof(ofc_sema_expr_list_t));
 	if (!copy) return NULL;
 
-	copy->expr = (ofc_sema_expr_t**)malloc(
-		(sizeof(ofc_sema_expr_t*) * list->count));
-	if (!copy->expr)
+	copy->ast.expr = (ofc_sema_expr_t**)malloc(
+		(sizeof(ofc_sema_expr_t*) * list->ast.count));
+	if (!copy->ast.expr)
 	{
 		free(copy);
 		return NULL;
 	}
 
-	copy->count = list->count;
+	copy->ast.count = list->ast.count;
 
 	bool fail = false;
 	unsigned i;
-	for (i = 0; i < copy->count; i++)
+	for (i = 0; i < copy->ast.count; i++)
 	{
-		const ofc_sema_expr_t* expr = list->expr[i];
-		copy->expr[i] = ofc_sema_expr_copy_replace(
+		const ofc_sema_expr_t* expr = list->ast.expr[i];
+		copy->ast.expr[i] = ofc_sema_expr_copy_replace(
 			expr, replace, with);
-		if (copy->expr[i] == NULL)
+		if (copy->ast.expr[i] == NULL)
 			fail = true;
 	}
 
@@ -2559,19 +2559,19 @@ bool ofc_sema_expr_list_add(
 		return false;
 
 	ofc_sema_expr_t** nexpr
-		= (ofc_sema_expr_t**)realloc(list->expr,
-			(sizeof(ofc_sema_expr_t*) * (list->count + 1)));
+		= (ofc_sema_expr_t**)realloc(list->ast.expr,
+			(sizeof(ofc_sema_expr_t*) * (list->ast.count + 1)));
 	if (!nexpr) return NULL;
 
-	list->expr = nexpr;
-	list->expr[list->count++] = expr;
+	list->ast.expr = nexpr;
+	list->ast.expr[list->ast.count++] = expr;
 	return true;
 }
 
 unsigned ofc_sema_expr_list_count(
 	const ofc_sema_expr_list_t* list)
 {
-	return (list ? list->count : 0);
+	return (list ? list->ast.count : 0);
 }
 
 bool ofc_sema_expr_list_elem_count(
@@ -2581,10 +2581,10 @@ bool ofc_sema_expr_list_elem_count(
 
 	unsigned len = 0;
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
 		ofc_sema_expr_t* expr
-			= list->expr[i];
+			= list->ast.expr[i];
 
 		unsigned elem_count;
 		if (!ofc_sema_expr_elem_count(
@@ -2609,10 +2609,10 @@ ofc_sema_expr_t* ofc_sema_expr_list_elem_get(
 
 	unsigned e = offset;
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
 		ofc_sema_expr_t* expr
-			= list->expr[i];
+			= list->ast.expr[i];
 
 		unsigned elem_count;
 		if (!ofc_sema_expr_elem_count(
@@ -2650,14 +2650,14 @@ bool ofc_sema_expr_list_compare(
 	if (a == b)
 		return true;
 
-	if (a->count != b->count)
+	if (a->ast.count != b->ast.count)
 		return false;
 
 	unsigned i;
-	for (i = 0; i < a->count; i++)
+	for (i = 0; i < a->ast.count; i++)
 	{
 		if (!ofc_sema_expr_compare(
-			a->expr[i], b->expr[i]))
+			a->ast.expr[i], b->ast.expr[i]))
 			return false;
 	}
 
@@ -2739,10 +2739,10 @@ bool ofc_sema_expr_list_foreach(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
 		if (!ofc_sema_expr_foreach(
-			list->expr[i], param, func))
+			list->ast.expr[i], param, func))
 			return false;
 	}
 
@@ -2957,13 +2957,13 @@ bool ofc_sema_expr_list_print(
 	if (!cs || !expr_list) return false;
 
 	unsigned i;
-	for (i = 0; i < expr_list->count; i++)
+	for (i = 0; i < expr_list->ast.count; i++)
 	{
-		if (!ofc_sema_expr_print(cs, expr_list->expr[i]))
+		if (!ofc_sema_expr_print(cs, expr_list->ast.expr[i]))
 			return false;
 
-		if ((expr_list->count > 1)
-			&& (i < expr_list->count - 1))
+		if ((expr_list->ast.count > 1)
+			&& (i < expr_list->ast.count - 1))
 		{
 			if (!ofc_colstr_atomic_writef(cs, ", "))
 				return false;

@@ -22,15 +22,14 @@ static ofc_sema_arg_list_t* ofc_sema_arg_list__create(unsigned count)
 			sizeof(ofc_sema_arg_list_t));
 	if (!list) return NULL;
 
-	list->arg = (ofc_sema_arg_t*)malloc(
-		sizeof(ofc_sema_arg_t) * count);
-	if (!list->arg)
+	list->ast.arg = (ofc_sema_arg_t*)malloc(
+			sizeof(ofc_sema_arg_t) * count);
+	if (!list->ast.arg)
 	{
 		free(list);
 		return NULL;
 	}
-
-	list->count = count;
+	list->ast.count = count;
 	return list;
 }
 
@@ -78,13 +77,13 @@ ofc_sema_arg_list_t* ofc_sema_arg_list(
 
 			/* TODO - Make list exclusive. */
 
-			list->arg[i].alt_return = false;
-			list->arg[i].name = arg->expr->variable->variable;
+			list->ast.arg[i].alt_return = false;
+			list->ast.arg[i].name = arg->expr->variable->variable;
 		}
 		else if (arg->type == OFC_PARSE_CALL_ARG_ASTERISK)
 		{
-			list->arg[i].alt_return = true;
-			list->arg[i].name = OFC_SPARSE_REF_EMPTY;
+			list->ast.arg[i].alt_return = true;
+			list->ast.arg[i].name = OFC_SPARSE_REF_EMPTY;
 		}
 		else
 		{
@@ -153,8 +152,8 @@ ofc_sema_arg_list_t* ofc_sema_arg_list_stmt_func(
 
 		/* TODO - Make list exclusive. */
 
-		list->arg[i].alt_return = false;
-		list->arg[i].name = expr->variable->variable;
+		list->ast.arg[i].alt_return = false;
+		list->ast.arg[i].name = expr->variable->variable;
 	}
 
 	return list;
@@ -168,20 +167,20 @@ bool ofc_sema_arg_list_print(
 		return false;
 
 	unsigned i;
-	for (i = 0; i < list->count; i++)
+	for (i = 0; i < list->ast.count; i++)
 	{
-		if (list->arg[i].alt_return)
+		if (list->ast.arg[i].alt_return)
 		{
 			if (!ofc_colstr_atomic_writef(cs, "*"))
 				return false;
 		}
 		else
 		{
-			if (!ofc_sparse_ref_print(cs, list->arg[i].name))
+			if (!ofc_sparse_ref_print(cs, list->ast.arg[i].name))
 				return false;
 		}
 
-		if (i < (list->count - 1)
+		if (i < (list->ast.count - 1)
 			&& !ofc_colstr_atomic_writef(cs, ", "))
 			return false;
 	}
@@ -194,7 +193,6 @@ void ofc_sema_arg_list_delete(
 {
 	if (!list)
 		return;
-
-	free(list->arg);
+	free(list->ast.arg);
 	free(list);
 }

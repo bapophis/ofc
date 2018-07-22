@@ -221,12 +221,12 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_cast(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	if (!intrinsic || !args
-		|| (args->count != 1))
+		|| (args->ast.count != 1))
 		return NULL;
 
 	ofc_sema_expr_t* expr
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[0]);
+			args->ast.dummy_arg[0]);
 	if (!expr) return NULL;
 
 	if (!ofc_sema_expr_is_constant(expr))
@@ -242,14 +242,14 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_iand(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	if (!intrinsic || !args
-		|| (args->count != 2))
+		|| (args->ast.count != 2))
 		return NULL;
 
 	const ofc_sema_typeval_t* ctv[2];
 	ofc_sema_expr_t* expr[2];
 
-	expr[0] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[0]);
-	expr[1] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[1]);
+	expr[0] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[0]);
+	expr[1] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[1]);
 
 	ctv[0] = ofc_sema_expr_constant(expr[0]);
 	ctv[1] = ofc_sema_expr_constant(expr[1]);
@@ -280,14 +280,14 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_ieor(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	if (!intrinsic || !args
-		|| (args->count != 2))
+		|| (args->ast.count != 2))
 		return NULL;
 
 	const ofc_sema_typeval_t* ctv[2];
 	ofc_sema_expr_t* expr[2];
 
-	expr[0] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[0]);
-	expr[1] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[1]);
+	expr[0] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[0]);
+	expr[1] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[1]);
 
 	ctv[0] = ofc_sema_expr_constant(expr[0]);
 	ctv[1] = ofc_sema_expr_constant(expr[1]);
@@ -318,14 +318,14 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_ior(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	if (!intrinsic || !args
-		|| (args->count != 2))
+		|| (args->ast.count != 2))
 		return NULL;
 
 	const ofc_sema_typeval_t* ctv[2];
 	ofc_sema_expr_t* expr[2];
 
-	expr[0] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[0]);
-	expr[1] = ofc_sema_dummy_arg_get_expr(args->dummy_arg[1]);
+	expr[0] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[0]);
+	expr[1] = ofc_sema_dummy_arg_get_expr(args->ast.dummy_arg[1]);
 
 	ctv[0] = ofc_sema_expr_constant(expr[0]);
 	ctv[1] = ofc_sema_expr_constant(expr[1]);
@@ -356,12 +356,12 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic_op__constant_not(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	if (!intrinsic || !args
-		|| (args->count != 1))
+		|| (args->ast.count != 1))
 		return NULL;
 
 	ofc_sema_expr_t* expr
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[0]);
+			args->ast.dummy_arg[0]);
 	const ofc_sema_typeval_t* ctv
 		= ofc_sema_expr_constant(expr);
 	if (!ctv || !ctv->type
@@ -648,10 +648,10 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__len_rt(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count >= 2)
+	if (args->ast.count >= 2)
 	{
 		const ofc_sema_type_t* type
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!type) return NULL;
 		kind = type->kind;
 	}
@@ -666,21 +666,21 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__len_tv(
 {
 	(void)intrinsic;
 
-	if (args->count > 2)
+	if (args->ast.count > 2)
 		return NULL;
 
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count > 1)
+	if (args->ast.count > 1)
 	{
 		const ofc_sema_type_t* kt
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!kt) return NULL;
 		kind = kt->kind;
 	}
 
 	ofc_sema_expr_t* expr
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[0]);
+			args->ast.dummy_arg[0]);
 	const ofc_sema_typeval_t* ctv
 		= ofc_sema_expr_constant(expr);
 	if (!ctv || !ofc_sema_type_is_character(ctv->type)
@@ -699,10 +699,10 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__char_rt(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count >= 2)
+	if (args->ast.count >= 2)
 	{
 		const ofc_sema_type_t* type
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!type) return NULL;
 		kind = type->kind;
 	}
@@ -717,21 +717,21 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__char_tv(
 {
 	(void)intrinsic;
 
-	if (args->count > 2)
+	if (args->ast.count > 2)
 		return NULL;
 
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count > 1)
+	if (args->ast.count > 1)
 	{
 		const ofc_sema_type_t* kt
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!kt) return NULL;
 		kind = kt->kind;
 	}
 
 	ofc_sema_expr_t* expr
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[0]);
+			args->ast.dummy_arg[0]);
 	const ofc_sema_typeval_t* ctv
 		= ofc_sema_expr_constant(expr);
 	if (!ctv) return NULL;
@@ -768,10 +768,10 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__ichar_rt(
 	const ofc_sema_dummy_arg_list_t* args)
 {
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count >= 2)
+	if (args->ast.count >= 2)
 	{
 		const ofc_sema_type_t* type
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!type) return NULL;
 		kind = type->kind;
 	}
@@ -786,21 +786,21 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__ichar_tv(
 {
 	(void)intrinsic;
 
-	if (args->count > 2)
+	if (args->ast.count > 2)
 		return NULL;
 
 	ofc_sema_kind_e kind = OFC_SEMA_KIND_DEFAULT;
-	if (args->count > 1)
+	if (args->ast.count > 1)
 	{
 		const ofc_sema_type_t* kt
-			= ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+			= ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 		if (!kt) return NULL;
 		kind = kt->kind;
 	}
 
 	ofc_sema_expr_t* expr
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[0]);
+			args->ast.dummy_arg[0]);
 	const ofc_sema_typeval_t* ctv
 		= ofc_sema_expr_constant(expr);
 	if (!ctv || !ofc_sema_type_is_character(ctv->type))
@@ -841,18 +841,18 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__ichar_tv(
 static const ofc_sema_type_t* ofc_sema_intrinsic__transfer_rt(
 	const ofc_sema_dummy_arg_list_t* args)
 {
-	if (args->count < 2)
+	if (args->ast.count < 2)
 		return NULL;
 
-	if (args->count >= 3)
+	if (args->ast.count >= 3)
 	{
 		/* TODO - INTRINSIC - Use 3rd parameter as array size if present. */
-		ofc_sparse_ref_error(args->dummy_arg[2]->src,
+		ofc_sparse_ref_error(args->ast.dummy_arg[2]->src,
 			"TRANSFER SIZE argument not yet supported");
 		return NULL;
 	}
 
-	return ofc_sema_dummy_arg_type(args->dummy_arg[1]);
+	return ofc_sema_dummy_arg_type(args->ast.dummy_arg[1]);
 }
 
 static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
@@ -862,13 +862,13 @@ static ofc_sema_typeval_t* ofc_sema_intrinsic__transfer_tv(
 	(void)intrinsic;
 
 	/* TODO - INTRINSIC - Use 3rd parameter as array size if present. */
-	if ((args->count < 2)
-		|| (args->count >= 3))
+	if ((args->ast.count < 2)
+		|| (args->ast.count >= 3))
 		return NULL;
 
 	ofc_sema_expr_t* expr_atv
 		= ofc_sema_dummy_arg_get_expr(
-			args->dummy_arg[1]);
+			args->ast.dummy_arg[1]);
 	if (!expr_atv) return NULL;
 
 	const ofc_sema_typeval_t* atv
@@ -1232,8 +1232,8 @@ static const ofc_sema_type_t* ofc_sema_intrinsic__param_rtype(
 		= ofc_sema_intrinsic__param[param];
 
 	const ofc_sema_type_t* stype = NULL;
-	if (args && (args->count > 0))
-		stype = ofc_sema_dummy_arg_type(args->dummy_arg[0]);
+	if (args && (args->ast.count > 0))
+		stype = ofc_sema_dummy_arg_type(args->ast.dummy_arg[0]);
 
 	const ofc_sema_type_t* rtype = NULL;
 	switch (p.type_type)
@@ -1735,7 +1735,7 @@ bool ofc_sema_stmt_intrinsic(
 		}
 
 		decl->is_intrinsic = true;
-		decl->intrinsic    = func;
+		decl->ast.intrinsic    = func;
 	}
 
 	return true;
@@ -1870,14 +1870,14 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__op(
 		|| !intrinsic->op)
 		return NULL;
 
-	if (args->count < intrinsic->op->arg_min)
+	if (args->ast.count < intrinsic->op->arg_min)
 	{
 		ofc_sparse_ref_error(src,
 			"Not enough arguments for intrinsic function.");
 		return NULL;
 	}
 	if ((intrinsic->op->arg_max != 0)
-		&& (args->count > intrinsic->op->arg_max))
+		&& (args->ast.count > intrinsic->op->arg_max))
 	{
 		ofc_sparse_ref_error(src,
 			"Too many arguments for intrinsic function.");
@@ -1886,16 +1886,16 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__op(
 
 	const ofc_sema_type_t* ctype = NULL;
 	unsigned i;
-	for (i = 0; i < args->count; i++)
+	for (i = 0; i < args->ast.count; i++)
 	{
 		bool valid = true;
 		const ofc_sema_type_t* atype
 			= ofc_sema_intrinsic__param_type(
-				args->dummy_arg[i], intrinsic->op->arg_type, &valid);
+				args->ast.dummy_arg[i], intrinsic->op->arg_type, &valid);
 
 		if (!valid)
 		{
-			ofc_sparse_ref_warning(args->dummy_arg[i]->src,
+			ofc_sparse_ref_warning(args->ast.dummy_arg[i]->src,
 				"Incorrect argument type for intrinsic.");
 		}
 
@@ -1909,10 +1909,10 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__op(
 		= ofc_sema_dummy_arg_list_create();
 	if (!cargs) return NULL;
 
-	for (i = 0; i < args->count; i++)
+	for (i = 0; i < args->ast.count; i++)
 	{
 		ofc_sema_dummy_arg_t* carg
-			= ofc_sema_dummy_arg_copy(args->dummy_arg[i]);
+			= ofc_sema_dummy_arg_copy(args->ast.dummy_arg[i]);
 		if (!carg)
 		{
 			ofc_sema_dummy_arg_list_delete(cargs);
@@ -1965,14 +1965,14 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__func(
 	if (!intrinsic->func)
 		return NULL;
 
-	if (args->count < intrinsic->func->arg_min)
+	if (args->ast.count < intrinsic->func->arg_min)
 	{
 		ofc_sparse_ref_error(src,
 			"Not enough arguments for intrinsic function.");
 		return NULL;
 	}
 	if ((intrinsic->func->arg_max != 0)
-		&& (args->count > intrinsic->func->arg_max))
+		&& (args->ast.count > intrinsic->func->arg_max))
 	{
 		ofc_sparse_ref_error(src,
 			"Too many arguments for intrinsic function.");
@@ -1986,12 +1986,12 @@ static ofc_sema_dummy_arg_list_t* ofc_sema_intrinsic_cast__func(
 	if (!cargs) return NULL;
 
 	unsigned i;
-	for (i = 0; i < args->count; i++)
+	for (i = 0; i < args->ast.count; i++)
 	{
 		bool valid = true;
 		ofc_sema_dummy_arg_t* carg
 			= ofc_sema_intrinsic__param_cast(
-				args->dummy_arg[i], intrinsic->func->arg_type[i], &valid);
+				args->ast.dummy_arg[i], intrinsic->func->arg_type[i], &valid);
 		if (!carg)
 		{
 			ofc_sema_dummy_arg_list_delete(cargs);

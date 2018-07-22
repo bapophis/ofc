@@ -31,7 +31,7 @@ ofc_sema_stmt_t* ofc_sema_stmt_assign(
 			scope, stmt->assign.variable, false);
 	if (!dest) return false;
 
-	if (!ofc_sema_type_is_integer(dest->type))
+	if (!ofc_sema_type_is_integer(dest->ast.type))
 	{
 		const ofc_sema_type_t* ptype
 			= ofc_sema_type_create_primitive(

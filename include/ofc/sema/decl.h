@@ -35,12 +35,10 @@ typedef struct
 	};
 } ofc_sema_decl_init_t;
 
-struct ofc_sema_decl_s
+typedef struct
 {
 	ofc_sparse_ref_t name;
 
-	bool type_final;
-	bool type_implicit;
 	const ofc_sema_type_t* type;
 
 	ofc_sema_accessibility_e access;
@@ -57,6 +55,13 @@ struct ofc_sema_decl_s
 		ofc_sema_decl_init_t  init;
 		ofc_sema_decl_init_t* init_array;
 	};
+} ofc_sema_decl_ast_t;
+
+struct ofc_sema_decl_s
+{
+	ofc_sema_decl_ast_t ast;
+	bool type_final;
+	bool type_implicit;
 
 	bool is_static;
 	bool is_automatic;
